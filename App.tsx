@@ -1,8 +1,16 @@
-import { useState } from "react";
+import "react-native-gesture-handler";
+import React from "react";
+
+import { View, Text } from "react-native";
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
 import { useFonts } from "expo-font";
 import RegistrationScreen from "./components/Screens/RegistrationScreen";
 import LoginScreen from "./components/Screens/LoginScreen";
-import { View, Text } from "react-native";
+import Home from "./components/Screens/Home";
+import Cookies from "universal-cookie";
+
+const MainStack = createStackNavigator();
 
 export default function App() {
   const [loaded] = useFonts({
@@ -12,10 +20,7 @@ export default function App() {
     "Roboto-Medium": require("./assets/fonts/Roboto-Medium.ttf"),
     "Roboto-Regular": require("./assets/fonts/Roboto-Regular.ttf"),
   });
-  const [page, setPage] = useState("registration");
-  const handlePage = (value: string) => {
-    setPage(value);
-  };
+  const cookies = new Cookies(null, { path: "/" });
 
   if (!loaded) {
     return (
@@ -26,12 +31,24 @@ export default function App() {
   }
 
   return (
-    <>
-      {page === "registration" ? (
-        <RegistrationScreen togglePage={handlePage} />
-      ) : (
-        <LoginScreen togglePage={handlePage} />
-      )}
-    </>
+    <NavigationContainer>
+      <MainStack.Navigator initialRouteName="Registration">
+        <MainStack.Screen
+          name="Registration"
+          component={RegistrationScreen}
+          initialParams={{ cookies }}
+        />
+        <MainStack.Screen
+          name="Login"
+          component={LoginScreen}
+          initialParams={{ cookies }}
+        />
+        <MainStack.Screen
+          name="Home"
+          component={Home}
+          options={{ title: "Публікації" }}
+        />
+      </MainStack.Navigator>
+    </NavigationContainer>
   );
 }

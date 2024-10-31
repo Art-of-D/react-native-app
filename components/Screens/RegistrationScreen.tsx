@@ -13,16 +13,15 @@ import {
   Platform,
 } from "react-native";
 import { useState } from "react";
-import styles from "./stylesRegistration";
+import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
+import styles from "./stylesRegistration";
 
 const IMG = require("../../assets/images/reg-bg.jpg");
 
-export default function RegistrationScreen({
-  togglePage,
-}: {
-  togglePage: Function;
-}) {
+export default function RegistrationScreen({ route }: any) {
+  const navigation = useNavigation();
+  const cookies = route.params.cookies;
   const [login, setLogin] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -60,6 +59,22 @@ export default function RegistrationScreen({
     if (!result.canceled) {
       setSelectedImage(result.assets[0].uri);
     }
+  };
+
+  const registration = () => {
+    if (!login || !email || !password || !selectedImage) {
+      Alert.alert("Заповніть усі поля");
+      return;
+    }
+    const cookie: Cookie = JSON.stringify({
+      name: login,
+      email: email,
+      password: password,
+      image: selectedImage,
+      loggedIn: true,
+    });
+    cookies.set(email, cookie);
+    navigation.navigate("Home");
   };
 
   const togglePasswordVisibility = () => {
@@ -150,12 +165,12 @@ export default function RegistrationScreen({
                   </TouchableOpacity>
                 </View>
               </View>
-              <TouchableOpacity style={styles.buttonReg}>
+              <TouchableOpacity style={styles.buttonReg} onPress={registration}>
                 <Text style={styles.buttonTextReg}>Зареєструватися</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.buttonLogin}
-                onPress={() => togglePage("login")}
+                onPress={() => navigation.navigate("Login")}
               >
                 <Text style={styles.buttonTextLogin}>Вже є акаунт? Увійти</Text>
               </TouchableOpacity>

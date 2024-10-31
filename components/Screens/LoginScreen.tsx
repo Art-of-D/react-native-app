@@ -11,54 +11,41 @@ import {
   TouchableWithoutFeedback,
   Platform,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import styles from "./stylesLogin";
-import * as ImagePicker from "expo-image-picker";
 
 const IMG = require("../../assets/images/reg-bg.jpg");
 
-export default function LoginScreen({ togglePage }: { togglePage: Function }) {
+export default function LoginScreen({ route }: any) {
+  const navigation = useNavigation();
+  const cookies = route.params.cookies;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [secureTextEntry, setSecureTextEntry] = useState(true);
-  const [selectedImage, setSelectedImage] = useState<string | undefined>(
-    undefined
-  );
   const [focusedInput, setFocusedInput] = useState("");
-
-  const pickImageHandler = () => {
-    if (selectedImage) {
-      setSelectedImage(undefined);
-    } else {
-      pickImage();
-    }
-  };
-
-  const pickImage = async () => {
-    const permissionResult =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (permissionResult.granted === false) {
-      Alert.alert(
-        "Permission Denied",
-        "You need to enable permission to access photos."
-      );
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      setSelectedImage(result.assets[0].uri);
-    }
-  };
 
   const togglePasswordVisibility = () => {
     if (password) {
       setSecureTextEntry(!secureTextEntry);
     }
+  };
+
+  const login = () => {
+    if (!email || !password) {
+      Alert.alert("Заповніть усі поля");
+      return;
+    }
+    const user = cookies.get(email);
+    if (!user) {
+      Alert.alert("Такого користувача не існує");
+      return;
+    }
+
+    if (user.password !== password) {
+      Alert.alert("Невірний пароль");
+      return;
+    }
+    navigation.navigate("Home");
   };
 
   return (
@@ -114,11 +101,13 @@ export default function LoginScreen({ togglePage }: { togglePage: Function }) {
                 </View>
               </View>
               <TouchableOpacity style={styles.buttonReg}>
-                <Text style={styles.buttonTextReg}>Увійти</Text>
+                <Text style={styles.buttonTextReg} onPress={login}>
+                  Увійти
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.buttonLogin}
-                onPress={() => togglePage("registration")}
+                onPress={() => navigation.navigate("Registration")}
               >
                 <Text style={styles.buttonTextLogin}>
                   Немає акаунту? Зареєструватися
