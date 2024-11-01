@@ -5,9 +5,9 @@ import { View, Text } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { useFonts } from "expo-font";
-import RegistrationScreen from "./components/Screens/RegistrationScreen";
-import LoginScreen from "./components/Screens/LoginScreen";
-import Home from "./components/Screens/Home";
+import RegistrationScreen from "./components/Screens/RegistrationScreen/RegistrationScreen";
+import LoginScreen from "./components/Screens/LoginScreen/LoginScreen";
+import Home from "./components/Screens/Home/Home";
 import Cookies from "universal-cookie";
 
 const MainStack = createStackNavigator();
@@ -46,7 +46,8 @@ export default function App() {
         <MainStack.Screen
           name="Home"
           component={Home}
-          options={{ title: "Публікації" }}
+          options={{ title: "Публікації", headerShown: false }}
+          initialParams={{ cookies }}
         />
       </MainStack.Navigator>
     </NavigationContainer>

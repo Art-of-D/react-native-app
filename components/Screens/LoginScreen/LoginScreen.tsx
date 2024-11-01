@@ -12,9 +12,10 @@ import {
   Platform,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { Cookie } from "universal-cookie/cjs/types";
 import styles from "./stylesLogin";
 
-const IMG = require("../../assets/images/reg-bg.jpg");
+const IMG = require("../../../assets/images/reg-bg.jpg");
 
 export default function LoginScreen({ route }: any) {
   const navigation = useNavigation();
@@ -35,7 +36,7 @@ export default function LoginScreen({ route }: any) {
       Alert.alert("Заповніть усі поля");
       return;
     }
-    const user = cookies.get(email);
+    const user: Cookie = cookies.get(email);
     if (!user) {
       Alert.alert("Такого користувача не існує");
       return;
@@ -45,7 +46,7 @@ export default function LoginScreen({ route }: any) {
       Alert.alert("Невірний пароль");
       return;
     }
-    navigation.navigate("Home");
+    navigation.navigate("Home", { user });
   };
 
   return (
@@ -100,10 +101,8 @@ export default function LoginScreen({ route }: any) {
                   </TouchableOpacity>
                 </View>
               </View>
-              <TouchableOpacity style={styles.buttonReg}>
-                <Text style={styles.buttonTextReg} onPress={login}>
-                  Увійти
-                </Text>
+              <TouchableOpacity style={styles.buttonReg} onPress={login}>
+                <Text style={styles.buttonTextReg}>Увійти</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.buttonLogin}

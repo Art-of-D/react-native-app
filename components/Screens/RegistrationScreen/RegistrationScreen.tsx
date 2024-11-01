@@ -15,9 +15,10 @@ import {
 import { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
+import { Cookie } from "universal-cookie/cjs/types";
 import styles from "./stylesRegistration";
 
-const IMG = require("../../assets/images/reg-bg.jpg");
+const IMG = require("../../../assets/images/reg-bg.jpg");
 
 export default function RegistrationScreen({ route }: any) {
   const navigation = useNavigation();
@@ -66,15 +67,15 @@ export default function RegistrationScreen({ route }: any) {
       Alert.alert("Заповніть усі поля");
       return;
     }
-    const cookie: Cookie = JSON.stringify({
+    const cookie: Cookie = {
       name: login,
       email: email,
       password: password,
       image: selectedImage,
       loggedIn: true,
-    });
+    };
     cookies.set(email, cookie);
-    navigation.navigate("Home");
+    navigation.navigate("Home", { user: cookie });
   };
 
   const togglePasswordVisibility = () => {
