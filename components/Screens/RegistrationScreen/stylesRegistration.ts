@@ -52,6 +52,8 @@ export default StyleSheet.create({
     borderWidth: 1,
     borderStyle: "solid",
     backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
   },
   deleteButton: {
     position: "absolute",
@@ -64,26 +66,18 @@ export default StyleSheet.create({
     borderWidth: 1,
     borderStyle: "solid",
     backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
   },
   addIcon: {
-    color: "#FF6C00",
-    fontSize: 25,
-    lineHeight: 26,
-    fontFamily: "Roboto-Light",
-    fontWeight: "thin",
-    textAlign: "center",
-    width: "100%",
-    height: "100%",
+    tintColor: "#FF6C00",
+    width: 13,
+    height: 13,
   },
   deleteIcon: {
-    color: "#BDBDBD",
-    fontSize: 25,
-    lineHeight: 26,
-    fontFamily: "Roboto-Light",
-    fontWeight: "thin",
-    textAlign: "center",
-    width: "100%",
-    height: "100%",
+    tintColor: "#BDBDBD",
+    width: 13,
+    height: 13,
     transform: [{ rotate: "45deg" }],
   },
   header2: {
@@ -120,7 +114,7 @@ export default StyleSheet.create({
     textAlign: "left",
     backgroundColor: "#F6F6F6",
   },
-  focusedInput: {
+  textInputFocused: {
     borderColor: "#FF6C00",
     backgroundColor: "#fff",
     color: "#212121",
@@ -128,18 +122,6 @@ export default StyleSheet.create({
   passwordWrapper: {
     position: "relative",
     width: "100%",
-  },
-  toggleButton: {
-    position: "absolute",
-    right: 16,
-    top: 16,
-  },
-  toggleText: {
-    color: "#1B4371",
-    fontSize: 16,
-    lineHeight: 19,
-    fontFamily: "Roboto-Regular",
-    fontWeight: "regular",
   },
   buttonReg: {
     marginTop: 43,
@@ -150,7 +132,7 @@ export default StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  buttonTextReg: {
+  buttonRegText: {
     color: "white",
     fontFamily: "Roboto-Regular",
     fontSize: 16,
@@ -165,12 +147,24 @@ export default StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  buttonTextLogin: {
+  buttonLoginText: {
     color: "#1B4371",
     fontFamily: "Roboto-Regular",
     fontSize: 16,
     lineHeight: 19,
     fontWeight: "400",
     textAlign: "center",
+  },
+  toggleButton: {
+    position: "absolute",
+    right: 16,
+    top: 16,
+  },
+  toggleText: {
+    color: "#1B4371",
+    fontSize: 16,
+    lineHeight: 19,
+    fontFamily: "Roboto-Regular",
+    fontWeight: "regular",
   },
 });

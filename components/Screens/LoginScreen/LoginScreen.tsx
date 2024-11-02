@@ -11,32 +11,31 @@ import {
   TouchableWithoutFeedback,
   Platform,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { Cookie } from "universal-cookie/cjs/types";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import constants from "../../../utils/images";
 import styles from "./stylesLogin";
+import Input from "../../Tools/Input/Input";
+import Button from "../../Tools/Button/Button";
 
-const IMG = require("../../../assets/images/reg-bg.jpg");
-
-export default function LoginScreen({ route }: any) {
+export default function LoginScreen() {
   const navigation = useNavigation();
-  const cookies = route.params.cookies;
+  const {
+    params: { cookies },
+  } = useRoute();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [secureTextEntry, setSecureTextEntry] = useState(true);
-  const [focusedInput, setFocusedInput] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
-  const togglePasswordVisibility = () => {
-    if (password) {
-      setSecureTextEntry(!secureTextEntry);
-    }
-  };
+  const toggleShowPassword = () => setShowPassword(!showPassword);
 
-  const login = () => {
+  const handleLogin = () => {
     if (!email || !password) {
-      Alert.alert("Заповніть усі поля");
+      Alert.alert("Введіть всі поля");
       return;
     }
-    const user: Cookie = cookies.get(email);
+
+    const user = cookies.get(email);
+
     if (!user) {
       Alert.alert("Такого користувача не існує");
       return;
@@ -46,13 +45,18 @@ export default function LoginScreen({ route }: any) {
       Alert.alert("Невірний пароль");
       return;
     }
+
     navigation.navigate("Home", { user });
   };
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
-        <ImageBackground source={IMG} resizeMode="cover" style={styles.image}>
+        <ImageBackground
+          source={constants.IMG}
+          resizeMode="cover"
+          style={styles.image}
+        >
           <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : undefined}
             keyboardVerticalOffset={Platform.select({
@@ -64,54 +68,42 @@ export default function LoginScreen({ route }: any) {
             <View style={styles.loginWrapper}>
               <Text style={styles.header2}>Увійти</Text>
               <View style={styles.inputWrapper}>
-                <TextInput
+                <Input
                   placeholder="Адреса електронної пошти"
                   textContentType="emailAddress"
                   value={email}
                   onChangeText={setEmail}
-                  style={[
-                    styles.textInput,
-                    focusedInput === "email" && styles.focusedInput,
-                  ]}
-                  onFocus={() => setFocusedInput("email")}
-                  onBlur={() => setFocusedInput("")}
                 />
-
                 <View style={styles.passwordWrapper}>
-                  <TextInput
+                  <Input
                     placeholder="Пароль"
                     textContentType="password"
-                    secureTextEntry={secureTextEntry}
+                    secureTextEntry={!showPassword}
                     value={password}
                     onChangeText={setPassword}
-                    style={[
-                      styles.textInput,
-                      focusedInput === "password" && styles.focusedInput,
-                    ]}
-                    onFocus={() => setFocusedInput("password")}
-                    onBlur={() => setFocusedInput("")}
                   />
                   <TouchableOpacity
-                    onPress={togglePasswordVisibility}
+                    onPress={toggleShowPassword}
                     style={styles.toggleButton}
                   >
                     <Text style={styles.toggleText}>
-                      {secureTextEntry ? "Показати" : "Сховати"}
+                      {showPassword ? "Сховати" : "Показати"}
                     </Text>
                   </TouchableOpacity>
                 </View>
               </View>
-              <TouchableOpacity style={styles.buttonReg} onPress={login}>
-                <Text style={styles.buttonTextReg}>Увійти</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.buttonLogin}
+              <Button
+                classNameButton={styles.buttonLogin}
+                text={"Увійти"}
+                classNameText={styles.buttonTextLogin}
+                onPress={handleLogin}
+              ></Button>
+              <Button
+                classNameButton={styles.buttonReg}
+                text={"Немає акаунту? Зареєструватися"}
+                classNameText={styles.buttonTextReg}
                 onPress={() => navigation.navigate("Registration")}
-              >
-                <Text style={styles.buttonTextLogin}>
-                  Немає акаунту? Зареєструватися
-                </Text>
-              </TouchableOpacity>
+              ></Button>
             </View>
           </KeyboardAvoidingView>
         </ImageBackground>

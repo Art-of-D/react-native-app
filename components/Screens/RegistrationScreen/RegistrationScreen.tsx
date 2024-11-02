@@ -1,93 +1,61 @@
 import {
   Text,
-  TextInput,
   View,
-  Image,
   ImageBackground,
-  TouchableOpacity,
   Alert,
-  Pressable,
   KeyboardAvoidingView,
   Keyboard,
   TouchableWithoutFeedback,
   Platform,
 } from "react-native";
 import { useState } from "react";
-import { useNavigation } from "@react-navigation/native";
-import * as ImagePicker from "expo-image-picker";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import PickedImage from "../../Tools/PickedImage/PickedImage";
+import Input from "../../Tools/Input/Input";
+import Button from "../../Tools/Button/Button";
 import { Cookie } from "universal-cookie/cjs/types";
+import constants from "../../../utils/images";
 import styles from "./stylesRegistration";
 
-const IMG = require("../../../assets/images/reg-bg.jpg");
-
-export default function RegistrationScreen({ route }: any) {
+export default function RegistrationScreen() {
   const navigation = useNavigation();
-  const cookies = route.params.cookies;
-  const [login, setLogin] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [secureTextEntry, setSecureTextEntry] = useState(true);
+  const { cookies } = useRoute().params;
+  const [loginValue, setLoginValue] = useState("");
+  const [emailValue, setEmailValue] = useState("");
+  const [passwordValue, setPasswordValue] = useState("");
+  const [secureTextEntryValue, setSecureTextEntryValue] = useState(true);
   const [selectedImage, setSelectedImage] = useState<string | undefined>(
     undefined
   );
-  const [focusedInput, setFocusedInput] = useState("");
 
-  const pickImageHandler = () => {
-    if (selectedImage) {
-      setSelectedImage(undefined);
-    } else {
-      pickImage();
-    }
-  };
-
-  const pickImage = async () => {
-    const permissionResult =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (permissionResult.granted === false) {
-      Alert.alert(
-        "Permission Denied",
-        "You need to enable permission to access photos."
-      );
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      setSelectedImage(result.assets[0].uri);
-    }
+  const togglePasswordVisibility = () => {
+    setSecureTextEntryValue(!secureTextEntryValue);
   };
 
   const registration = () => {
-    if (!login || !email || !password || !selectedImage) {
+    if (!loginValue || !emailValue || !passwordValue || !selectedImage) {
       Alert.alert("Заповніть усі поля");
       return;
     }
     const cookie: Cookie = {
-      name: login,
-      email: email,
-      password: password,
+      name: loginValue,
+      email: emailValue,
+      password: passwordValue,
       image: selectedImage,
       loggedIn: true,
     };
-    cookies.set(email, cookie);
+    cookies.set(emailValue, cookie);
     navigation.navigate("Home", { user: cookie });
-  };
-
-  const togglePasswordVisibility = () => {
-    if (password) {
-      setSecureTextEntry(!secureTextEntry);
-    }
   };
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
-        <ImageBackground source={IMG} resizeMode="cover" style={styles.image}>
+        <ImageBackground
+          source={constants.IMG}
+          resizeMode="cover"
+          style={styles.image}
+        >
           <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : undefined}
             keyboardVerticalOffset={Platform.select({
@@ -97,84 +65,68 @@ export default function RegistrationScreen({ route }: any) {
             style={styles.keyboardContainer}
           >
             <View style={styles.regWrapper}>
-              <View style={styles.avatarWrapper}>
-                <Image
-                  key={selectedImage ? selectedImage : "default"}
-                  source={{ uri: selectedImage }}
-                  style={styles.downloadedImage}
-                />
-                <Pressable
-                  style={selectedImage ? styles.deleteButton : styles.addButton}
-                  onPress={pickImageHandler}
-                >
-                  <Text
-                    style={selectedImage ? styles.deleteIcon : styles.addIcon}
-                  >
-                    &#43;
-                  </Text>
-                </Pressable>
-              </View>
+              <PickedImage
+                stylesImageWrapper={styles.avatarWrapper}
+                stylesImage={styles.downloadedImage}
+                stylesButton={
+                  selectedImage ? styles.deleteButton : styles.addButton
+                }
+                stylesButtonIcon={
+                  selectedImage ? styles.deleteIcon : styles.addIcon
+                }
+                buttonIcon={constants.PLUS}
+                handleSelectedImage={setSelectedImage}
+              ></PickedImage>
               <Text style={styles.header2}>Реєстрація</Text>
 
               <View style={styles.inputWrapper}>
-                <TextInput
+                <Input
                   placeholder="Логін"
                   textContentType="nickname"
-                  value={login}
-                  onChangeText={setLogin}
-                  style={[
-                    styles.textInput,
-                    focusedInput === "login" && styles.focusedInput,
-                  ]}
-                  onFocus={() => setFocusedInput("login")}
-                  onBlur={() => setFocusedInput("")}
+                  value={loginValue}
+                  classNameInput={styles.textInput}
+                  classNameFocusedInput={styles.textInputFocused}
+                  onChangeText={setLoginValue}
                 />
-                <TextInput
+                <Input
                   placeholder="Адреса електронної пошти"
                   textContentType="emailAddress"
-                  value={email}
-                  onChangeText={setEmail}
-                  style={[
-                    styles.textInput,
-                    focusedInput === "email" && styles.focusedInput,
-                  ]}
-                  onFocus={() => setFocusedInput("email")}
-                  onBlur={() => setFocusedInput("")}
+                  value={emailValue}
+                  classNameInput={styles.textInput}
+                  classNameFocusedInput={styles.textInputFocused}
+                  onChangeText={setEmailValue}
                 />
 
                 <View style={styles.passwordWrapper}>
-                  <TextInput
+                  <Input
                     placeholder="Пароль"
                     textContentType="password"
-                    secureTextEntry={secureTextEntry}
-                    value={password}
-                    onChangeText={setPassword}
-                    style={[
-                      styles.textInput,
-                      focusedInput === "password" && styles.focusedInput,
-                    ]}
-                    onFocus={() => setFocusedInput("password")}
-                    onBlur={() => setFocusedInput("")}
+                    secureTextEntry={secureTextEntryValue}
+                    value={passwordValue}
+                    classNameInput={styles.textInput}
+                    classNameFocusedInput={styles.textInputFocused}
+                    onChangeText={setPasswordValue}
                   />
-                  <TouchableOpacity
+                  <Button
                     onPress={togglePasswordVisibility}
-                    style={styles.toggleButton}
-                  >
-                    <Text style={styles.toggleText}>
-                      {secureTextEntry ? "Показати" : "Сховати"}
-                    </Text>
-                  </TouchableOpacity>
+                    classNameButton={styles.toggleButton}
+                    classNameText={styles.toggleText}
+                    text={secureTextEntryValue ? "Показати" : "Сховати"}
+                  ></Button>
                 </View>
               </View>
-              <TouchableOpacity style={styles.buttonReg} onPress={registration}>
-                <Text style={styles.buttonTextReg}>Зареєструватися</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.buttonLogin}
+              <Button
+                classNameButton={styles.buttonReg}
+                text={"Зареєструватися"}
+                classNameText={styles.buttonRegText}
+                onPress={registration}
+              ></Button>
+              <Button
+                classNameButton={styles.buttonLogin}
+                text={"Вже є акаунт? Увійти"}
+                classNameText={styles.buttonLoginText}
                 onPress={() => navigation.navigate("Login")}
-              >
-                <Text style={styles.buttonTextLogin}>Вже є акаунт? Увійти</Text>
-              </TouchableOpacity>
+              ></Button>
             </View>
           </KeyboardAvoidingView>
         </ImageBackground>

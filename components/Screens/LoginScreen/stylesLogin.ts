@@ -46,27 +46,6 @@ export default StyleSheet.create({
     width: "100%",
     maxHeight: 343,
   },
-  textInput: {
-    height: 50,
-    width: "100%",
-    borderRadius: 8,
-    padding: 16,
-    borderColor: "#E8E8E8",
-    borderWidth: 1,
-    borderStyle: "solid",
-    color: "#BDBDBD",
-    fontFamily: "Roboto-Regular",
-    fontSize: 16,
-    lineHeight: 19,
-    fontWeight: "400",
-    textAlign: "left",
-    backgroundColor: "#F6F6F6",
-  },
-  focusedInput: {
-    borderColor: "#FF6C00",
-    backgroundColor: "#fff",
-    color: "#212121",
-  },
   passwordWrapper: {
     position: "relative",
     width: "100%",
@@ -83,7 +62,7 @@ export default StyleSheet.create({
     fontFamily: "Roboto-Regular",
     fontWeight: "regular",
   },
-  buttonReg: {
+  buttonLogin: {
     marginTop: 43,
     height: 50,
     width: "100%",
@@ -92,7 +71,7 @@ export default StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  buttonTextReg: {
+  buttonTextLogin: {
     color: "white",
     fontFamily: "Roboto-Regular",
     fontSize: 16,
@@ -100,14 +79,14 @@ export default StyleSheet.create({
     fontWeight: "400",
     textAlign: "center",
   },
-  buttonLogin: {
+  buttonReg: {
     marginTop: 16,
     height: 19,
     width: "100%",
     justifyContent: "center",
     alignItems: "center",
   },
-  buttonTextLogin: {
+  buttonTextReg: {
     color: "#1B4371",
     fontFamily: "Roboto-Regular",
     fontSize: 16,
