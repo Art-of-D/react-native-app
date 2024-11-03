@@ -13,13 +13,13 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import PickedImage from "../../Tools/PickedImage/PickedImage";
 import Input from "../../Tools/Input/Input";
 import Button from "../../Tools/Button/Button";
-import { Cookie } from "universal-cookie/cjs/types";
 import constants from "../../../utils/images";
 import styles from "./stylesRegistration";
 
 export default function RegistrationScreen() {
   const navigation = useNavigation();
-  const { cookies } = useRoute().params;
+  const route = useRoute();
+  const { users, dataHandler } = route.params;
   const [loginValue, setLoginValue] = useState("");
   const [emailValue, setEmailValue] = useState("");
   const [passwordValue, setPasswordValue] = useState("");
@@ -37,15 +37,33 @@ export default function RegistrationScreen() {
       Alert.alert("Заповніть усі поля");
       return;
     }
-    const cookie: Cookie = {
+    if (!emailValue.includes("@")) {
+      Alert.alert("Невірний формат пошти");
+      return;
+    }
+    if (passwordValue.length < 6) {
+      Alert.alert("Пароль повинен містити не менше 6 символів");
+      return;
+    }
+    if (users[emailValue]) {
+      Alert.alert("Користувач з такою поштою вже існує");
+      return;
+    }
+    const data = {
       name: loginValue,
       email: emailValue,
       password: passwordValue,
       image: selectedImage,
       loggedIn: true,
     };
-    cookies.set(emailValue, cookie);
-    navigation.navigate("Home", { user: cookie });
+    dataHandler("users", { [emailValue]: { ...data } });
+    setEmailValue("");
+    setLoginValue("");
+    setPasswordValue("");
+    setSecureTextEntryValue(true);
+    setSelectedImage(undefined);
+
+    navigation.navigate("Home", { user: data });
   };
 
   return (

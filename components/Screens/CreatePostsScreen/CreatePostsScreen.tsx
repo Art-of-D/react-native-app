@@ -1,25 +1,80 @@
 import { useState } from "react";
-import { Text, View, Image, TouchableOpacity } from "react-native";
-import styles from "./stylesCreatePostsScreen";
+import { Alert, Text, View } from "react-native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import PickedImage from "../../Tools/PickedImage/PickedImage";
 import images from "../../../utils/images";
 import Input from "../../Tools/Input/Input";
 import Button from "../../Tools/Button/Button";
+import IconInput from "../../Tools/IconInput/IconInput";
+import ButtonIcon from "../../Tools/ButtonIcon/ButtonIcon";
+import styles from "./stylesCreatePostsScreen";
 
 export default function CreatePostsScreen() {
+  const navigation = useNavigation();
+  const {
+    params: { cookies, user },
+  } = useRoute();
   const [title, setTitle] = useState<string>("");
   const [pinOnMap, setPinOnMap] = useState<string>("");
+  const [selectedImage, setSelectedImage] = useState<string | undefined>(
+    undefined
+  );
+
+  const createPost = () => {
+    if (!title || !pinOnMap || !selectedImage) {
+      Alert.alert("Заповніть усі поля");
+      return;
+    }
+
+    const newPost = {
+      id: Date.now().toString(),
+      owner: user.email,
+      title,
+      location: pinOnMap,
+      image: selectedImage,
+      comments: [],
+    };
+
+    const updatedPosts = cookies.posts
+      ? [...cookies.posts, newPost]
+      : [newPost];
+    cookies.set("posts", { posts: updatedPosts });
+    setSelectedImage(undefined);
+    setTitle("");
+    setPinOnMap("");
+
+    navigation.navigate("Публікації", { cookies, user });
+  };
+
+  const deletePost = () => {
+    setSelectedImage(undefined);
+    setTitle("");
+    setPinOnMap("");
+    navigation.navigate("Публікації", { cookies, user });
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.wrapper}>
         <PickedImage
           stylesImageWrapper={styles.imageWrapper}
           stylesImage={styles.image}
-          stylesButton={styles.imageButton}
-          stylesButtonIcon={styles.buttonIcon}
+          stylesButton={[
+            styles.imageButton,
+            selectedImage && styles.imageButtonReady,
+          ]}
+          stylesButtonIcon={[
+            styles.buttonIcon,
+            selectedImage && styles.buttonIconReady,
+          ]}
           buttonIcon={images.CAMERA}
+          deleteImageFunc={false}
+          image={selectedImage}
+          handleSelectedImage={setSelectedImage}
         />
-        <Text style={styles.text}>Завантажте фото</Text>
+        <Text style={styles.text}>
+          {selectedImage ? "Редагувати фото" : "Завантажте фото"}
+        </Text>
       </View>
       <Input
         classNameInput={styles.textInput}
@@ -29,26 +84,35 @@ export default function CreatePostsScreen() {
         value={title}
         onChangeText={setTitle}
       />
-      <View style={styles.mapWrapper}>
-        <Image source={images.PIN_MAP} style={styles.mapIcon} />
-        <Input
-          classNameInput={[styles.textInput, styles.textInputMap]}
-          classNameFocusedInput={styles.textInputFocused}
-          textContentType="location"
-          placeholder="Місцевість..."
-          value={pinOnMap}
-          onChangeText={setPinOnMap}
-        />
-      </View>
+      <IconInput
+        iconSource={images.PIN_MAP}
+        placeholder="Місцевість..."
+        textContentType="location"
+        value={pinOnMap}
+        onChangeText={setPinOnMap}
+        classNameWrapper={styles.mapWrapper}
+        classNameInput={[styles.textInput, styles.textInputMap]}
+        classNameFocusedInput={styles.textInputFocused}
+        classNameIcon={styles.mapIcon}
+      />
       <Button
         text="Опублікувати"
-        classNameButton={styles.buttonSubmit}
-        classNameText={styles.buttonSubmitText}
-        onPress={() => {}}
+        classNameButton={[
+          styles.buttonSubmit,
+          selectedImage && title && pinOnMap && styles.buttonSubmitReady,
+        ]}
+        classNameText={[
+          styles.buttonSubmitText,
+          selectedImage && title && pinOnMap && styles.buttonSubmitTextReady,
+        ]}
+        onPress={createPost}
       />
-      <TouchableOpacity style={styles.buttonDelete} onPress={() => {}}>
-        <Image source={images.TRASH_BOX} style={styles.buttonDeleteIcon} />
-      </TouchableOpacity>
+      <ButtonIcon
+        classNameButton={styles.buttonDelete}
+        classNameIcon={styles.buttonDeleteIcon}
+        icon={images.TRASH_BOX}
+        onPress={deletePost}
+      />
     </View>
   );
 }

@@ -1,15 +1,11 @@
-import { useState } from "react";
-import { Text, View, Image, Pressable, TouchableOpacity } from "react-native";
+import { Text, View, Image, ScrollView } from "react-native";
+import Post from "../Post/Post";
 import { useRoute } from "@react-navigation/native";
 import styles from "./stylesPostsScreen";
 export default function PostsScreen() {
-  const {
-    params: { cookies, user },
-  } = useRoute();
-  const [selectedImage, setSelectedImage] = useState<string | undefined>(
-    undefined
-  );
-
+  const { params } = useRoute();
+  const { user, users, posts, dataHandler } = params;
+  console.log(users);
   return (
     <View style={styles.container}>
       <View style={styles.userContainer}>
@@ -24,6 +20,19 @@ export default function PostsScreen() {
           <Text style={styles.textEmail}>{user.email}</Text>
         </View>
       </View>
+      <ScrollView>
+        {posts[0].id &&
+          posts.map((post: any) => (
+            <Post
+              key={post.id}
+              image={post.image}
+              title={post.title}
+              comments={post.comments}
+              location={post.location}
+              onPress={() => {}}
+            />
+          ))}
+      </ScrollView>
     </View>
   );
 }

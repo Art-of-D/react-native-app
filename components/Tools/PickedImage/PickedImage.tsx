@@ -4,10 +4,11 @@ import * as ImagePicker from "expo-image-picker";
 
 export default function PickedImage(props: any) {
   const [selectedImage, setSelectedImage] = useState<string | undefined>(
-    undefined
+    props.image
   );
+  const deleteImageFunc = props.deleteImageFunc && true;
   const pickImage = async () => {
-    if (selectedImage) {
+    if (selectedImage && deleteImageFunc) {
       setSelectedImage(undefined);
       props.handleSelectedImage(undefined);
       return;
@@ -30,8 +31,9 @@ export default function PickedImage(props: any) {
     });
 
     if (!result.canceled) {
-      setSelectedImage(result.assets[0].uri);
-      props.handleSelectedImage(result.assets[0].uri);
+      const uri = result.assets[0].uri;
+      setSelectedImage(uri);
+      props.handleSelectedImage(uri);
     }
   };
 

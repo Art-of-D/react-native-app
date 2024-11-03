@@ -19,9 +19,8 @@ import Button from "../../Tools/Button/Button";
 
 export default function LoginScreen() {
   const navigation = useNavigation();
-  const {
-    params: { cookies },
-  } = useRoute();
+  const route = useRoute();
+  const { users } = route.params;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -33,8 +32,8 @@ export default function LoginScreen() {
       Alert.alert("Введіть всі поля");
       return;
     }
-
-    const user = cookies.get(email);
+    console.log(users);
+    const user = users[email];
 
     if (!user) {
       Alert.alert("Такого користувача не існує");
@@ -45,6 +44,9 @@ export default function LoginScreen() {
       Alert.alert("Невірний пароль");
       return;
     }
+    setEmail("");
+    setPassword("");
+    setShowPassword(false);
 
     navigation.navigate("Home", { user });
   };
@@ -73,6 +75,8 @@ export default function LoginScreen() {
                   textContentType="emailAddress"
                   value={email}
                   onChangeText={setEmail}
+                  classNameInput={styles.textInput}
+                  classNameFocusedInput={styles.textInputFocused}
                 />
                 <View style={styles.passwordWrapper}>
                   <Input
@@ -81,6 +85,8 @@ export default function LoginScreen() {
                     secureTextEntry={!showPassword}
                     value={password}
                     onChangeText={setPassword}
+                    classNameInput={styles.textInput}
+                    classNameFocusedInput={styles.textInputFocused}
                   />
                   <TouchableOpacity
                     onPress={toggleShowPassword}

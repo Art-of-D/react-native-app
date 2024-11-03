@@ -5,20 +5,22 @@ import PickedImage from "../../Tools/PickedImage/PickedImage";
 import constants from "../../../utils/images";
 import styles from "./stylesProfileScreen";
 export default function ProfileScreen() {
-  const {
-    params: { cookies, user },
-  } = useRoute();
-  const [selectedImageValue, setSelectedImageValue] = useState<
-    string | undefined
-  >(user.image);
+  const { params } = useRoute();
+  const { user, posts, dataHandler } = params;
+  const [selectedImage, setSelectedImageValue] = useState<string | undefined>(
+    user.image
+  );
 
   useEffect(() => {
-    if (!selectedImageValue) {
-      cookies.set(user.email, { ...user, image: "" });
+    const userData = user;
+    if (!selectedImage) {
+      userData.image = "";
+      dataHandler("users", { [user.email]: userData });
     } else {
-      cookies.set(user.email, { ...user, image: selectedImageValue });
+      userData.image = selectedImage;
+      dataHandler("users", { [user.email]: userData });
     }
-  }, [selectedImageValue]);
+  }, [selectedImage]);
 
   return (
     <View style={styles.container}>
@@ -27,17 +29,19 @@ export default function ProfileScreen() {
         resizeMode="cover"
         style={styles.image}
       >
-        <View style={styles.regWrapper}>
+        <View style={styles.userWrapper}>
           <PickedImage
             stylesImageWrapper={styles.avatarWrapper}
             stylesImage={styles.downloadedImage}
             stylesButton={
-              selectedImageValue ? styles.deleteButton : styles.addButton
+              selectedImage ? styles.deleteButton : styles.addButton
             }
             stylesButtonIcon={
-              selectedImageValue ? styles.deleteIcon : styles.addIcon
+              selectedImage ? styles.deleteIcon : styles.addIcon
             }
             buttonIcon={constants.PLUS}
+            image={selectedImage}
+            deleteImageFunc={true}
             handleSelectedImage={setSelectedImageValue}
           ></PickedImage>
           <Text style={styles.header2}>{user.name}</Text>
@@ -46,22 +50,4 @@ export default function ProfileScreen() {
       </ImageBackground>
     </View>
   );
-}
-
-{
-  /* <View style={styles.avatarWrapper}>
-            <Image
-              key={selectedImage ? selectedImage : "default"}
-              source={{ uri: selectedImage }}
-              style={styles.downloadedImage}
-            />
-            <Pressable
-              style={selectedImage ? styles.deleteButton : styles.addButton}
-              onPress={pickImageHandler}
-            >
-              <Text style={selectedImage ? styles.deleteIcon : styles.addIcon}>
-                &#43;
-              </Text>
-            </Pressable>
-          </View> */
 }
