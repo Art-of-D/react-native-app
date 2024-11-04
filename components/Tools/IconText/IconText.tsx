@@ -1,10 +1,33 @@
-import { View, Image, Text } from "react-native";
+import {
+  View,
+  Image,
+  Text,
+  ImageSourcePropType,
+  StyleProp,
+  ViewStyle,
+  TextStyle,
+  ImageStyle,
+} from "react-native";
 
-export default function IconText(props: any) {
+interface IconTextProps {
+  iconSource: ImageSourcePropType;
+  text: number | string;
+  stylesWrapper?: StyleProp<ViewStyle>;
+  stylesIcon?: StyleProp<ImageStyle>;
+  stylesText?: StyleProp<TextStyle>;
+}
+
+export default function IconText({
+  iconSource,
+  text,
+  stylesWrapper,
+  stylesIcon,
+  stylesText,
+}: IconTextProps) {
   return (
-    <View style={props.classNameWrapper}>
-      <Image source={props.iconSource} style={props.classNameIcon} />
-      <Text style={props.classNameText}>{props.text}</Text>
+    <View style={stylesWrapper}>
+      <Image source={iconSource} style={stylesIcon} />
+      <Text style={stylesText}>{text}</Text>
     </View>
   );
 }

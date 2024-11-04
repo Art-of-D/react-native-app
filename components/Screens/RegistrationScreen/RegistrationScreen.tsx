@@ -8,25 +8,25 @@ import {
   TouchableWithoutFeedback,
   Platform,
 } from "react-native";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import PickedImage from "../../Tools/PickedImage/PickedImage";
 import Input from "../../Tools/Input/Input";
 import Button from "../../Tools/Button/Button";
 import constants from "../../../utils/images";
+import { UsersContext } from "../../../App";
 import styles from "./stylesRegistration";
 
 export default function RegistrationScreen() {
   const navigation = useNavigation();
+  const users = useContext(UsersContext);
   const route = useRoute();
-  const { users, dataHandler } = route.params;
+  const { dataHandler } = route.params as any;
   const [loginValue, setLoginValue] = useState("");
   const [emailValue, setEmailValue] = useState("");
   const [passwordValue, setPasswordValue] = useState("");
   const [secureTextEntryValue, setSecureTextEntryValue] = useState(true);
-  const [selectedImage, setSelectedImage] = useState<string | undefined>(
-    undefined
-  );
+  const [selectedImage, setSelectedImage] = useState<string>("");
 
   const togglePasswordVisibility = () => {
     setSecureTextEntryValue(!secureTextEntryValue);
@@ -45,7 +45,7 @@ export default function RegistrationScreen() {
       Alert.alert("Пароль повинен містити не менше 6 символів");
       return;
     }
-    if (users[emailValue]) {
+    if (users && users[emailValue]) {
       Alert.alert("Користувач з такою поштою вже існує");
       return;
     }
@@ -61,11 +61,10 @@ export default function RegistrationScreen() {
     setLoginValue("");
     setPasswordValue("");
     setSecureTextEntryValue(true);
-    setSelectedImage(undefined);
+    setSelectedImage("");
 
-    navigation.navigate("Home", { user: data });
+    (navigation as any).navigate("Home", { user: data });
   };
-
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
@@ -93,8 +92,10 @@ export default function RegistrationScreen() {
                   selectedImage ? styles.deleteIcon : styles.addIcon
                 }
                 buttonIcon={constants.PLUS}
+                image={selectedImage}
+                deleteImageFunc={true}
                 handleSelectedImage={setSelectedImage}
-              ></PickedImage>
+              />
               <Text style={styles.header2}>Реєстрація</Text>
 
               <View style={styles.inputWrapper}>
@@ -102,48 +103,48 @@ export default function RegistrationScreen() {
                   placeholder="Логін"
                   textContentType="nickname"
                   value={loginValue}
-                  classNameInput={styles.textInput}
-                  classNameFocusedInput={styles.textInputFocused}
+                  stylesInput={styles.textInput}
+                  stylesFocusedInput={styles.textInputFocused}
                   onChangeText={setLoginValue}
                 />
                 <Input
                   placeholder="Адреса електронної пошти"
-                  textContentType="emailAddress"
+                  textContentOption="emailAddress"
                   value={emailValue}
-                  classNameInput={styles.textInput}
-                  classNameFocusedInput={styles.textInputFocused}
+                  stylesInput={styles.textInput}
+                  stylesFocusedInput={styles.textInputFocused}
                   onChangeText={setEmailValue}
                 />
 
                 <View style={styles.passwordWrapper}>
                   <Input
                     placeholder="Пароль"
-                    textContentType="password"
+                    textContentOption="password"
                     secureTextEntry={secureTextEntryValue}
                     value={passwordValue}
-                    classNameInput={styles.textInput}
-                    classNameFocusedInput={styles.textInputFocused}
+                    stylesInput={styles.textInput}
+                    stylesFocusedInput={styles.textInputFocused}
                     onChangeText={setPasswordValue}
                   />
                   <Button
                     onPress={togglePasswordVisibility}
-                    classNameButton={styles.toggleButton}
-                    classNameText={styles.toggleText}
+                    stylesButton={styles.toggleButton}
+                    stylesText={styles.toggleText}
                     text={secureTextEntryValue ? "Показати" : "Сховати"}
                   ></Button>
                 </View>
               </View>
               <Button
-                classNameButton={styles.buttonReg}
+                stylesButton={styles.buttonReg}
                 text={"Зареєструватися"}
-                classNameText={styles.buttonRegText}
+                stylesText={styles.buttonRegText}
                 onPress={registration}
               ></Button>
               <Button
-                classNameButton={styles.buttonLogin}
+                stylesButton={styles.buttonLogin}
                 text={"Вже є акаунт? Увійти"}
-                classNameText={styles.buttonLoginText}
-                onPress={() => navigation.navigate("Login")}
+                stylesText={styles.buttonLoginText}
+                onPress={() => (navigation as any).navigate("Login")}
               ></Button>
             </View>
           </KeyboardAvoidingView>

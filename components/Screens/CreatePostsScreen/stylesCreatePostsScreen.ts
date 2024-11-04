@@ -17,7 +17,7 @@ export default StyleSheet.create({
   },
   imageWrapper: {
     position: "relative",
-    width: "100%",
+    minWidth: "100%",
     height: 240,
     backgroundColor: "#E8E8E8",
     borderRadius: 8,
@@ -52,10 +52,10 @@ export default StyleSheet.create({
   },
   text: {
     color: "#BDBDBD",
-    fontFamily: "Roboto-Regular",
+    fontFamily: "Roboto-Medium",
     fontSize: 16,
     lineHeight: 19,
-    fontWeight: "400",
+    fontWeight: "600",
     textAlign: "left",
   },
   textInput: {
@@ -123,6 +123,6 @@ export default StyleSheet.create({
     alignItems: "center",
   },
   buttonDeleteIcon: {
-    color: "#BDBDBD",
+    tintColor: "#BDBDBD",
   },
 });

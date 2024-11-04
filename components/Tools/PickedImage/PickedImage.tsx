@@ -1,16 +1,46 @@
-import { useState } from "react";
-import { View, Image, Pressable, Text, Alert } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Image,
+  Pressable,
+  Alert,
+  StyleProp,
+  ViewStyle,
+  ImageStyle,
+} from "react-native";
 import * as ImagePicker from "expo-image-picker";
 
-export default function PickedImage(props: any) {
-  const [selectedImage, setSelectedImage] = useState<string | undefined>(
-    props.image
-  );
-  const deleteImageFunc = props.deleteImageFunc && true;
-  const pickImage = async () => {
+interface PickedImageProps {
+  image: string;
+  handleSelectedImage: (uri: string) => void;
+  deleteImageFunc: boolean;
+  stylesImageWrapper: StyleProp<ViewStyle>;
+  stylesImage: StyleProp<ImageStyle>;
+  stylesButton: StyleProp<ViewStyle>;
+  stylesButtonIcon: StyleProp<ImageStyle>;
+  buttonIcon: any;
+}
+
+export default function PickedImage({
+  image,
+  deleteImageFunc = true,
+  handleSelectedImage,
+  stylesImageWrapper,
+  stylesImage,
+  stylesButton,
+  stylesButtonIcon,
+  buttonIcon,
+}: PickedImageProps) {
+  const [selectedImage, setSelectedImage] = useState<string>(image);
+
+  useEffect(() => {
+    setSelectedImage(image);
+  }, [image]);
+
+  const pickImage = async (): Promise<void> => {
     if (selectedImage && deleteImageFunc) {
-      setSelectedImage(undefined);
-      props.handleSelectedImage(undefined);
+      setSelectedImage("");
+      handleSelectedImage("");
       return;
     }
 
@@ -33,19 +63,21 @@ export default function PickedImage(props: any) {
     if (!result.canceled) {
       const uri = result.assets[0].uri;
       setSelectedImage(uri);
-      props.handleSelectedImage(uri);
+      handleSelectedImage(uri);
     }
   };
 
   return (
-    <View style={props.stylesImageWrapper}>
-      <Image
-        key={selectedImage ? selectedImage : "default"}
-        source={{ uri: selectedImage }}
-        style={props.stylesImage}
-      />
-      <Pressable style={props.stylesButton} onPress={pickImage}>
-        <Image style={props.stylesButtonIcon} source={props.buttonIcon} />
+    <View style={stylesImageWrapper}>
+      {selectedImage && (
+        <Image
+          key={selectedImage ? selectedImage : "default"}
+          source={{ uri: selectedImage }}
+          style={stylesImage}
+        />
+      )}
+      <Pressable style={stylesButton} onPress={pickImage}>
+        <Image style={stylesButtonIcon} source={buttonIcon} />
       </Pressable>
     </View>
   );

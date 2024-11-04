@@ -1,7 +1,6 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import {
   Text,
-  TextInput,
   View,
   ImageBackground,
   TouchableOpacity,
@@ -11,16 +10,16 @@ import {
   TouchableWithoutFeedback,
   Platform,
 } from "react-native";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import constants from "../../../utils/images";
-import styles from "./stylesLogin";
 import Input from "../../Tools/Input/Input";
 import Button from "../../Tools/Button/Button";
+import { UsersContext } from "../../../App";
+import styles from "./stylesLogin";
 
 export default function LoginScreen() {
   const navigation = useNavigation();
-  const route = useRoute();
-  const { users } = route.params;
+  const users = useContext<any>(UsersContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -32,7 +31,6 @@ export default function LoginScreen() {
       Alert.alert("Введіть всі поля");
       return;
     }
-    console.log(users);
     const user = users[email];
 
     if (!user) {
@@ -48,7 +46,7 @@ export default function LoginScreen() {
     setPassword("");
     setShowPassword(false);
 
-    navigation.navigate("Home", { user });
+    (navigation as any).navigate("Home", { user });
   };
 
   return (
@@ -72,21 +70,21 @@ export default function LoginScreen() {
               <View style={styles.inputWrapper}>
                 <Input
                   placeholder="Адреса електронної пошти"
-                  textContentType="emailAddress"
+                  textContentOption="emailAddress"
                   value={email}
                   onChangeText={setEmail}
-                  classNameInput={styles.textInput}
-                  classNameFocusedInput={styles.textInputFocused}
+                  stylesInput={styles.textInput}
+                  stylesFocusedInput={styles.textInputFocused}
                 />
                 <View style={styles.passwordWrapper}>
                   <Input
                     placeholder="Пароль"
-                    textContentType="password"
+                    textContentOption="password"
                     secureTextEntry={!showPassword}
                     value={password}
                     onChangeText={setPassword}
-                    classNameInput={styles.textInput}
-                    classNameFocusedInput={styles.textInputFocused}
+                    stylesInput={styles.textInput}
+                    stylesFocusedInput={styles.textInputFocused}
                   />
                   <TouchableOpacity
                     onPress={toggleShowPassword}
@@ -99,16 +97,16 @@ export default function LoginScreen() {
                 </View>
               </View>
               <Button
-                classNameButton={styles.buttonLogin}
+                stylesButton={styles.buttonLogin}
                 text={"Увійти"}
-                classNameText={styles.buttonTextLogin}
+                stylesText={styles.buttonTextLogin}
                 onPress={handleLogin}
               ></Button>
               <Button
-                classNameButton={styles.buttonReg}
+                stylesButton={styles.buttonReg}
                 text={"Немає акаунту? Зареєструватися"}
-                classNameText={styles.buttonTextReg}
-                onPress={() => navigation.navigate("Registration")}
+                stylesText={styles.buttonTextReg}
+                onPress={() => (navigation as any).navigate("Registration")}
               ></Button>
             </View>
           </KeyboardAvoidingView>

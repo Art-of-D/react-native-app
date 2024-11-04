@@ -8,17 +8,23 @@ import Button from "../../Tools/Button/Button";
 import IconInput from "../../Tools/IconInput/IconInput";
 import ButtonIcon from "../../Tools/ButtonIcon/ButtonIcon";
 import styles from "./stylesCreatePostsScreen";
+export type PostComment = {
+  id: string;
+  text: string;
+  date: string;
+  email: string;
+};
+export type PostComments = {
+  [key: string]: PostComment;
+};
 
 export default function CreatePostsScreen() {
   const navigation = useNavigation();
-  const {
-    params: { cookies, user },
-  } = useRoute();
+  const { params } = useRoute();
+  const { user, dataHandler } = params as any;
   const [title, setTitle] = useState<string>("");
   const [pinOnMap, setPinOnMap] = useState<string>("");
-  const [selectedImage, setSelectedImage] = useState<string | undefined>(
-    undefined
-  );
+  const [selectedImage, setSelectedImage] = useState<string>("");
 
   const createPost = () => {
     if (!title || !pinOnMap || !selectedImage) {
@@ -32,25 +38,22 @@ export default function CreatePostsScreen() {
       title,
       location: pinOnMap,
       image: selectedImage,
-      comments: [],
+      comments: {} as PostComments,
     };
+    dataHandler("posts", { [newPost.id]: newPost });
 
-    const updatedPosts = cookies.posts
-      ? [...cookies.posts, newPost]
-      : [newPost];
-    cookies.set("posts", { posts: updatedPosts });
-    setSelectedImage(undefined);
+    setSelectedImage("");
     setTitle("");
     setPinOnMap("");
 
-    navigation.navigate("Публікації", { cookies, user });
+    (navigation as any).navigate("Публікації", { user });
   };
 
   const deletePost = () => {
-    setSelectedImage(undefined);
+    setSelectedImage("");
     setTitle("");
     setPinOnMap("");
-    navigation.navigate("Публікації", { cookies, user });
+    (navigation as any).navigate("Публікації", { user });
   };
 
   return (
@@ -61,11 +64,11 @@ export default function CreatePostsScreen() {
           stylesImage={styles.image}
           stylesButton={[
             styles.imageButton,
-            selectedImage && styles.imageButtonReady,
+            selectedImage ? styles.imageButtonReady : null,
           ]}
           stylesButtonIcon={[
             styles.buttonIcon,
-            selectedImage && styles.buttonIconReady,
+            selectedImage ? styles.buttonIconReady : null,
           ]}
           buttonIcon={images.CAMERA}
           deleteImageFunc={false}
@@ -77,9 +80,9 @@ export default function CreatePostsScreen() {
         </Text>
       </View>
       <Input
-        classNameInput={styles.textInput}
-        classNameFocusedInput={styles.textInputFocused}
-        textContentType="name"
+        stylesInput={styles.textInput}
+        stylesFocusedInput={styles.textInputFocused}
+        textContentOption="name"
         placeholder="Назва..."
         value={title}
         onChangeText={setTitle}
@@ -87,29 +90,31 @@ export default function CreatePostsScreen() {
       <IconInput
         iconSource={images.PIN_MAP}
         placeholder="Місцевість..."
-        textContentType="location"
+        textContentOption="location"
         value={pinOnMap}
         onChangeText={setPinOnMap}
-        classNameWrapper={styles.mapWrapper}
-        classNameInput={[styles.textInput, styles.textInputMap]}
-        classNameFocusedInput={styles.textInputFocused}
-        classNameIcon={styles.mapIcon}
+        stylesWrapper={styles.mapWrapper}
+        stylesInput={[styles.textInput, styles.textInputMap]}
+        stylesFocusedInput={styles.textInputFocused}
+        stylesIcon={styles.mapIcon}
       />
       <Button
         text="Опублікувати"
-        classNameButton={[
+        stylesButton={[
           styles.buttonSubmit,
-          selectedImage && title && pinOnMap && styles.buttonSubmitReady,
+          selectedImage && title && pinOnMap ? styles.buttonSubmitReady : null,
         ]}
-        classNameText={[
+        stylesText={[
           styles.buttonSubmitText,
-          selectedImage && title && pinOnMap && styles.buttonSubmitTextReady,
+          selectedImage && title && pinOnMap
+            ? styles.buttonSubmitTextReady
+            : null,
         ]}
         onPress={createPost}
       />
       <ButtonIcon
-        classNameButton={styles.buttonDelete}
-        classNameIcon={styles.buttonDeleteIcon}
+        stylesButton={styles.buttonDelete}
+        stylesIcon={styles.buttonDeleteIcon}
         icon={images.TRASH_BOX}
         onPress={deletePost}
       />

@@ -32,14 +32,15 @@ export default StyleSheet.create({
     top: -60,
     left: "50%",
     transform: [{ translateX: -50 }],
-    width: "auto",
-    height: "auto",
+    width: 120,
+    height: 120,
+    backgroundColor: "#F6F6F6",
+    borderRadius: 16,
   },
   downloadedImage: {
     width: 120,
     height: 120,
     borderRadius: 16,
-    backgroundColor: "#F6F6F6",
   },
   addButton: {
     position: "absolute",

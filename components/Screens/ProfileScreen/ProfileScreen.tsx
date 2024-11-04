@@ -1,15 +1,16 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Text, View, ScrollView, ImageBackground } from "react-native";
 import { useRoute } from "@react-navigation/native";
 import PickedImage from "../../Tools/PickedImage/PickedImage";
 import constants from "../../../utils/images";
 import styles from "./stylesProfileScreen";
+import { PostsContext } from "../../../App";
+import Post from "../Post/Post";
 export default function ProfileScreen() {
   const { params } = useRoute();
-  const { user, posts, dataHandler } = params;
-  const [selectedImage, setSelectedImageValue] = useState<string | undefined>(
-    user.image
-  );
+  const posts = useContext(PostsContext);
+  const { user, dataHandler } = params as any;
+  const [selectedImage, setSelectedImageValue] = useState<string>(user.image);
 
   useEffect(() => {
     const userData = user;
@@ -45,7 +46,19 @@ export default function ProfileScreen() {
             handleSelectedImage={setSelectedImageValue}
           ></PickedImage>
           <Text style={styles.header2}>{user.name}</Text>
-          <ScrollView style={styles.scrollView}></ScrollView>
+          <ScrollView style={styles.postsContainer}>
+            {posts &&
+              Object.values(posts).map((post: any) => (
+                <Post
+                  key={post.id}
+                  image={post.image}
+                  title={post.title}
+                  comments={post.comments.length}
+                  location={post.location}
+                  onPress={() => {}}
+                />
+              ))}
+          </ScrollView>
         </View>
       </ImageBackground>
     </View>

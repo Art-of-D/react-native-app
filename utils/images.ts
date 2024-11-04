@@ -10,6 +10,13 @@ const TRASH_BOX = require("../assets/images/trash.png");
 
 const COMMENT = require("../assets/images/comment.png");
 
+const LOGOUT = require("../assets/images/log-out.png");
+
+const VECTOR = require("../assets/images/vector.png");
+
+const CUBES = require("../assets/images/grid.png");
+
+const PROFILE = require("../assets/images/user.png");
 export default {
   IMG,
   PLUS,
@@ -17,4 +24,8 @@ export default {
   PIN_MAP,
   TRASH_BOX,
   COMMENT,
+  LOGOUT,
+  VECTOR,
+  CUBES,
+  PROFILE,
 };

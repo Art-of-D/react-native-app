@@ -1,22 +1,37 @@
-import { TextInput } from "react-native";
+import { TextInput, TextInputProps, StyleProp, TextStyle } from "react-native";
 import { useState } from "react";
 
-export default function Input(props: any) {
-  const [focusedInput, setFocusedInput] = useState("");
+interface InputProps extends TextInputProps {
+  placeholder?: string;
+  textContentOption?: TextInputProps["textContentType"];
+  value?: string;
+  onChangeText?: (text: string) => void;
+  secureTextEntry?: boolean;
+  stylesInput?: StyleProp<TextStyle>;
+  stylesFocusedInput?: StyleProp<TextStyle>;
+}
+
+export default function Input({
+  placeholder,
+  textContentOption,
+  value,
+  onChangeText,
+  secureTextEntry,
+  stylesInput,
+  stylesFocusedInput,
+}: InputProps) {
+  const [isFocused, setIsFocused] = useState(false);
 
   return (
     <TextInput
-      placeholder={props.placeholder}
-      textContentType={props.textContentType}
-      value={props.value}
-      onChangeText={props.onChangeText}
-      secureTextEntry={props.secureTextEntry}
-      style={[
-        props.classNameInput,
-        focusedInput === props.name && props.classNameFocusedInput,
-      ]}
-      onFocus={() => setFocusedInput(props.name)}
-      onBlur={() => setFocusedInput("")}
+      placeholder={placeholder}
+      textContentType={textContentOption}
+      value={value}
+      onChangeText={onChangeText}
+      secureTextEntry={secureTextEntry}
+      style={[stylesInput, isFocused && stylesFocusedInput]}
+      onFocus={() => setIsFocused(true)}
+      onBlur={() => setIsFocused(false)}
     />
   );
 }

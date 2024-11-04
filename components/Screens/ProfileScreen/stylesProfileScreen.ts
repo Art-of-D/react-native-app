@@ -31,14 +31,15 @@ export default StyleSheet.create({
     top: -60,
     left: "50%",
     transform: [{ translateX: -50 }],
-    width: "auto",
-    height: "auto",
+    width: 120,
+    height: 120,
+    borderRadius: 16,
+    backgroundColor: "#F6F6F6",
   },
   downloadedImage: {
     width: 120,
     height: 120,
     borderRadius: 16,
-    backgroundColor: "#F6F6F6",
   },
   addButton: {
     position: "absolute",
@@ -88,5 +89,8 @@ export default StyleSheet.create({
     lineHeight: 35,
     fontWeight: "medium",
     textAlign: "center",
+  },
+  postsContainer: {
+    flexGrow: 1,
   },
 });

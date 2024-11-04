@@ -3,6 +3,8 @@ import { StyleSheet } from "react-native";
 export default StyleSheet.create({
   container: {
     flex: 1,
+    paddingLeft: 16,
+    paddingRight: 16,
     backgroundColor: "#fff",
   },
   userContainer: {
@@ -36,5 +38,8 @@ export default StyleSheet.create({
     fontSize: 11,
     lineHeight: 13,
     fontWeight: 400,
+  },
+  postsContainer: {
+    flexGrow: 1,
   },
 });
