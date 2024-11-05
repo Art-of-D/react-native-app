@@ -1,3 +1,4 @@
+import { useNavigation } from "@react-navigation/native";
 import {
   Pressable,
   Image,
@@ -6,23 +7,33 @@ import {
   ViewStyle,
   ImageStyle,
 } from "react-native";
+import images from "../../../utils/images";
+import styles from "./stylesPressableIcon";
 
 interface PressableIconProps {
-  onPress: () => void;
-  icon: ImageSourcePropType;
+  onPress?: () => void;
+  icon?: ImageSourcePropType;
   buttonStyle?: StyleProp<ViewStyle>;
   iconStyle?: StyleProp<ImageStyle>;
 }
 
 export default function PressableIcon({
   onPress,
-  icon,
+  icon = images.VECTOR,
   buttonStyle,
   iconStyle,
 }: PressableIconProps) {
+  const navigation = useNavigation();
+  const handleComeBack = () => {
+    navigation.goBack();
+  };
+
   return (
-    <Pressable onPress={onPress} style={buttonStyle}>
-      <Image source={icon} style={iconStyle} />
+    <Pressable
+      onPress={onPress || handleComeBack}
+      style={buttonStyle ? buttonStyle : styles.button}
+    >
+      <Image source={icon} style={iconStyle ? iconStyle : styles.icon} />
     </Pressable>
   );
 }

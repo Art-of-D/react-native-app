@@ -7,6 +7,13 @@ import { useFonts } from "expo-font";
 import RegistrationScreen from "./components/Screens/RegistrationScreen/RegistrationScreen";
 import LoginScreen from "./components/Screens/LoginScreen/LoginScreen";
 import Home from "./components/Screens/Home/Home";
+import {
+  PostComment,
+  PostComments,
+} from "./components/Screens/CreatePostsScreen/CreatePostsScreen";
+import { RoutesNames, Screens, ScreensTitles } from "./utils/enums/routes";
+import CommentsScreen from "./components/Screens/CommentsScreen/CommentsScreen";
+import PressableIcon from "./components/Tools/PressableIcon/PressableIcon";
 
 export type User = {
   [key: string]: {
@@ -23,7 +30,7 @@ export type Post = {
     owner: string;
     image: string;
     title: string;
-    comments: Array<string>;
+    comments: PostComments;
     location: string;
   };
 };
@@ -55,6 +62,36 @@ export default function App() {
     }
   };
 
+  const updateComments = (id: string, newComment: PostComment) => {
+    setPosts((prevState: Post | null) => {
+      if (!prevState) {
+        return null;
+      }
+      if (prevState[id].comments) {
+        return {
+          ...prevState,
+          [id]: {
+            ...prevState[id],
+            comments: {
+              ...prevState[id].comments,
+              [newComment.id]: newComment,
+            },
+          },
+        };
+      } else {
+        return {
+          ...prevState,
+          [id]: {
+            ...prevState[id],
+            comments: {
+              [newComment.id]: newComment,
+            },
+          },
+        };
+      }
+    });
+  };
+
   if (!loaded) {
     return (
       <View>
@@ -67,23 +104,42 @@ export default function App() {
     <UsersContext.Provider value={users}>
       <PostsContext.Provider value={posts}>
         <NavigationContainer>
-          <MainStack.Navigator initialRouteName="Registration">
+          <MainStack.Navigator initialRouteName={Screens.RegistrationScreen}>
             <MainStack.Screen
-              name="Registration"
+              name={Screens.RegistrationScreen}
               component={RegistrationScreen}
               initialParams={{ dataHandler }}
-              options={{ headerShown: false }}
+              options={{
+                headerShown: false,
+              }}
             />
             <MainStack.Screen
-              name="Login"
+              name={Screens.LoginScreen}
               component={LoginScreen}
               options={{ headerShown: false }}
             />
             <MainStack.Screen
-              name="Home"
+              name={Screens.Home}
               component={Home}
-              initialParams={{ dataHandler }}
+              initialParams={{ dataHandler, updateComments }}
               options={{ headerShown: false }}
+            />
+            <MainStack.Screen
+              name={RoutesNames.Comments}
+              component={CommentsScreen}
+              initialParams={{ updateComments }}
+              options={({ route }) => ({
+                headerTitle: ScreensTitles.Comments,
+                headerLeft: () =>
+                  route.name === RoutesNames.Comments ? (
+                    <PressableIcon />
+                  ) : undefined,
+                headerStyle: {
+                  height: 98,
+                  borderBottomColor: "rgba(0, 0, 0, 0.30)",
+                  borderBottomWidth: 1,
+                },
+              })}
             />
           </MainStack.Navigator>
         </NavigationContainer>

@@ -4,6 +4,18 @@ export default StyleSheet.create({
   container: {
     flex: 1,
   },
+  logoutButton: {
+    position: "absolute",
+    width: 24,
+    height: 24,
+    top: 22,
+    right: 16,
+  },
+  logout: {
+    width: 24,
+    height: 24,
+    tintColor: "#BDBDBD",
+  },
   image: {
     paddingTop: 147,
     justifyContent: "center",

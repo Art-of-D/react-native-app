@@ -7,15 +7,21 @@ import ProfileScreen from "../ProfileScreen/ProfileScreen";
 import { SafeAreaView } from "react-native-safe-area-context";
 import images from "../../../utils/images";
 import PressableIcon from "../../Tools/PressableIcon/PressableIcon";
+import {
+  RoutesNames,
+  Screens,
+  ScreensTitles,
+} from "../../../utils/enums/routes";
 import styles from "./stylesHome";
 
 export default function Home() {
   const { params } = useRoute();
-  const { user, dataHandler } = params as any;
+  const { user, dataHandler, updateComments } = params as any;
   const navigation = useNavigation();
+  const Tabs = createBottomTabNavigator();
 
   const handleLogout = () => {
-    (navigation as any).navigate("Login");
+    (navigation as any).navigate(Screens.LoginScreen);
   };
 
   if (!user) {
@@ -25,30 +31,21 @@ export default function Home() {
       </SafeAreaView>
     );
   }
-
-  const Tabs = createBottomTabNavigator();
-
   return (
     <View style={styles.container}>
       <Tabs.Navigator
-        screenOptions={({ route, navigation }) => ({
+        screenOptions={({ route }) => ({
           headerLeft: () =>
-            route.name === "Створити публікацію" ||
-            route.name === "Комментарі" ? (
-              <PressableIcon
-                icon={images.VECTOR}
-                iconStyle={styles.vector}
-                buttonStyle={styles.vectorButton}
-                onPress={() => navigation.goBack()}
-              />
+            route.name === RoutesNames.CreatePosts ? (
+              <PressableIcon icon={images.VECTOR} />
             ) : undefined,
           headerRight: () =>
-            route.name === "Публікації" ? (
+            route.name === RoutesNames.Posts ? (
               <PressableIcon
                 icon={images.LOGOUT}
                 iconStyle={styles.logout}
                 buttonStyle={styles.logoutButton}
-                onPress={() => navigation.navigate("Login")}
+                onPress={handleLogout}
               />
             ) : undefined,
           headerStyle: {
@@ -64,9 +61,9 @@ export default function Home() {
           tabBarShowLabel: false,
           tabBarIcon: () => {
             let iconSource;
-            const postsTab = route.name === "Публікації";
-            const createPostTab = route.name === "Створити публікацію";
-            const profileTab = route.name === "Профіль";
+            const postsTab = route.name === RoutesNames.Posts;
+            const createPostTab = route.name === RoutesNames.CreatePosts;
+            const profileTab = route.name === RoutesNames.Profile;
             if (postsTab) {
               iconSource = images.CUBES;
             } else if (createPostTab) {
@@ -100,18 +97,22 @@ export default function Home() {
         })}
       >
         <Tabs.Screen
-          name="Публікації"
+          name={RoutesNames.Posts}
           component={PostsScreen}
           initialParams={{ user }}
+          options={{ headerTitle: ScreensTitles.Posts }}
         />
         <Tabs.Screen
-          name="Створити публікацію"
+          name={RoutesNames.CreatePosts}
           component={CreatePostsScreen}
-          options={{ tabBarStyle: { display: "none" } }}
+          options={{
+            tabBarStyle: { display: "none" },
+            headerTitle: ScreensTitles.CreatePosts,
+          }}
           initialParams={{ user, dataHandler }}
         />
         <Tabs.Screen
-          name="Профіль"
+          name={RoutesNames.Profile}
           component={ProfileScreen}
           initialParams={{ user, dataHandler }}
           options={{ headerShown: false }}

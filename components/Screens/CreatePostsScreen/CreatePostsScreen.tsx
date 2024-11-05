@@ -7,6 +7,7 @@ import Input from "../../Tools/Input/Input";
 import Button from "../../Tools/Button/Button";
 import IconInput from "../../Tools/IconInput/IconInput";
 import ButtonIcon from "../../Tools/ButtonIcon/ButtonIcon";
+import { RoutesNames } from "../../../utils/enums/routes";
 import styles from "./stylesCreatePostsScreen";
 export type PostComment = {
   id: string;
@@ -46,14 +47,14 @@ export default function CreatePostsScreen() {
     setTitle("");
     setPinOnMap("");
 
-    (navigation as any).navigate("Публікації", { user });
+    (navigation as any).navigate(RoutesNames.Posts, { user });
   };
 
   const deletePost = () => {
     setSelectedImage("");
     setTitle("");
     setPinOnMap("");
-    (navigation as any).navigate("Публікації", { user });
+    (navigation as any).navigate(RoutesNames.Posts, { user });
   };
 
   return (

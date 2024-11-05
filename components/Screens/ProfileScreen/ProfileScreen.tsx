@@ -3,10 +3,15 @@ import { Text, View, ScrollView, ImageBackground } from "react-native";
 import { useRoute } from "@react-navigation/native";
 import PickedImage from "../../Tools/PickedImage/PickedImage";
 import constants from "../../../utils/images";
-import styles from "./stylesProfileScreen";
 import { PostsContext } from "../../../App";
-import Post from "../Post/Post";
+import Post from "../../Tools/Post/Post";
+import PressableIcon from "../../Tools/PressableIcon/PressableIcon";
+import images from "../../../utils/images";
+import { Screens } from "../../../utils/enums/routes";
+import { useNavigation } from "@react-navigation/native";
+import styles from "./stylesProfileScreen";
 export default function ProfileScreen() {
+  const navigator = useNavigation();
   const { params } = useRoute();
   const posts = useContext(PostsContext);
   const { user, dataHandler } = params as any;
@@ -23,6 +28,10 @@ export default function ProfileScreen() {
     }
   }, [selectedImage]);
 
+  const handleLogout = () => {
+    (navigator as any).navigate(Screens.LoginScreen);
+  };
+
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -31,6 +40,12 @@ export default function ProfileScreen() {
         style={styles.image}
       >
         <View style={styles.userWrapper}>
+          <PressableIcon
+            icon={images.LOGOUT}
+            iconStyle={styles.logout}
+            buttonStyle={styles.logoutButton}
+            onPress={handleLogout}
+          />
           <PickedImage
             stylesImageWrapper={styles.avatarWrapper}
             stylesImage={styles.downloadedImage}

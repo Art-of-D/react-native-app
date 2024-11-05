@@ -1,80 +1,69 @@
-import { Text, View, Image, FlatList } from "react-native";
-import IconInput from "../../Tools/IconInput/IconInput";
+import { View, Image, ScrollView, TextInput, Pressable } from "react-native";
 import images from "../../../utils/images";
 import { useContext, useState } from "react";
 import { PostsContext, UsersContext } from "../../../App";
 import { useRoute } from "@react-navigation/native";
 import { PostComment } from "../CreatePostsScreen/CreatePostsScreen";
+import Comment from "../../Tools/Comment/Comment";
 import styles from "./stylesCommentsScreen";
 
 export default function CommentsScreen() {
   const { params } = useRoute();
-  const { postId } = params as any;
+  const { user, post, updateComments } = params as any;
   const users = useContext(UsersContext);
   const posts = useContext(PostsContext);
   const [comment, setComment] = useState("");
 
-  const renderComment = ({ item }: { item: PostComment }) => (
-    <View style={styles.commentContainer}>
-      <Image
-        source={
-          users && users[item.email]?.image
-            ? { uri: users[item.email].image }
-            : undefined
-        }
-        style={styles.image}
-      />
-      <View style={styles.commentBubble}>
-        <Text style={styles.commentText}>{item.text}</Text>
-        <Text style={styles.commentDate}>{item.date}</Text>
-      </View>
-    </View>
-  );
-
+  const handleComment = () => {
+    if (comment) {
+      const newComment: PostComment = {
+        id: Date.now().toString(),
+        text: comment,
+        date: new Date().toISOString(),
+        email: user.email,
+      };
+      updateComments(post.id, newComment);
+      setComment("");
+    }
+  };
   return (
     <View style={styles.container}>
       <Image
-        source={
-          posts && posts[postId]?.image
-            ? { uri: posts[postId].image }
-            : undefined
-        }
+        source={post?.image ? { uri: post.image } : undefined}
         style={styles.image}
       />
 
-      {posts && posts[postId] && (
-        <FlatList
-          data={
-            posts && posts[postId]
-              ? Object.values(posts[postId].comments).map((comment) => {
-                  const { id, text, date, email } = JSON.parse(comment);
-                  return {
-                    id,
-                    text,
-                    date,
-                    email,
-                  };
-                })
-              : null
-          }
-          renderItem={renderComment}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.commentsList}
-        />
-      )}
+      <ScrollView contentContainerStyle={styles.commentsList}>
+        {posts &&
+          posts[post.id].comments &&
+          Object.values(posts[post.id].comments).map((commentData) => (
+            <Comment
+              key={commentData.id}
+              comment={commentData}
+              userImage={
+                users && users[commentData.email].image
+                  ? users[commentData.email]?.image
+                  : undefined
+              }
+              stylesComment={
+                commentData.email === post.owner
+                  ? styles.commentOwner
+                  : styles.commentUser
+              }
+            />
+          ))}
+      </ScrollView>
 
       <View style={styles.inputContainer}>
-        <IconInput
-          iconSource={images.VECTOR}
-          placeholder="Місцевість..."
-          textContentOption="location"
+        <TextInput
+          style={styles.input}
+          placeholder="Коментувати..."
           value={comment}
           onChangeText={setComment}
-          stylesWrapper={styles.commentWrapper}
-          stylesInput={styles.textInput}
-          stylesFocusedInput={styles.textInputFocused}
-          stylesIcon={styles.commentIcon}
         />
+        <Pressable style={styles.sendButton} onPress={handleComment}>
+          <Image source={images.VECTOR} style={styles.sendIcon} />
+        </Pressable>
       </View>
     </View>
   );
