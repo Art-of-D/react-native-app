@@ -8,25 +8,38 @@ import {
   TouchableWithoutFeedback,
   Platform,
 } from "react-native";
-import { useContext, useState } from "react";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { useContext, useEffect, useState } from "react";
+import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import PickedImage from "../../Tools/PickedImage/PickedImage";
 import Input from "../../Tools/Input/Input";
 import Button from "../../Tools/Button/Button";
 import constants from "../../../utils/images";
-import { UsersContext } from "../../../App";
+import {
+  CurrentUserContext,
+  DataHandlerContext,
+  UsersContext,
+} from "../../../App";
+import { PostScreenRouteProp } from "../../../utils/interfaces/routeParams";
 import styles from "./stylesRegistration";
 
 export default function RegistrationScreen() {
-  const navigation = useNavigation();
+  const navigator = useNavigation();
   const users = useContext(UsersContext);
-  const route = useRoute();
-  const { dataHandler } = route.params as any;
+  const { userdataHandler } = useContext(DataHandlerContext);
+  const { setCurrentUser } = useContext(CurrentUserContext);
+  const route = useRoute<PostScreenRouteProp>();
+  const photoUri = route.params?.photoUri;
   const [loginValue, setLoginValue] = useState("");
   const [emailValue, setEmailValue] = useState("");
   const [passwordValue, setPasswordValue] = useState("");
   const [secureTextEntryValue, setSecureTextEntryValue] = useState(true);
   const [selectedImage, setSelectedImage] = useState<string>("");
+
+  useEffect(() => {
+    if (photoUri) {
+      setSelectedImage(photoUri);
+    }
+  }, [photoUri]);
 
   const togglePasswordVisibility = () => {
     setSecureTextEntryValue(!secureTextEntryValue);
@@ -56,14 +69,15 @@ export default function RegistrationScreen() {
       image: selectedImage,
       loggedIn: true,
     };
-    dataHandler("users", { [emailValue]: { ...data } });
+    userdataHandler("users", { [emailValue]: { ...data } });
     setEmailValue("");
     setLoginValue("");
     setPasswordValue("");
     setSecureTextEntryValue(true);
     setSelectedImage("");
 
-    (navigation as any).navigate("Home", { user: data });
+    setCurrentUser(data);
+    (navigator as any).navigate("Home");
   };
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -144,7 +158,7 @@ export default function RegistrationScreen() {
                 stylesButton={styles.buttonLogin}
                 text={"Вже є акаунт? Увійти"}
                 stylesText={styles.buttonLoginText}
-                onPress={() => (navigation as any).navigate("Login")}
+                onPress={() => (navigator as any).navigate("Login")}
               ></Button>
             </View>
           </KeyboardAvoidingView>

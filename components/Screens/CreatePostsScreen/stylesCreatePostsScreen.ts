@@ -3,17 +3,40 @@ import { StyleSheet } from "react-native";
 export default StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 32,
     paddingLeft: 16,
     paddingRight: 16,
+    justifyContent: "center",
     alignItems: "center",
-    width: "100%",
-    height: "100%",
     backgroundColor: "#fff",
   },
-  wrapper: {
+  postWrapper: {
+    paddingTop: 32,
+    width: "100%",
+    height: "100%",
+    alignItems: "center",
+  },
+  pickedImageWrapper: {
     gap: 8,
     marginBottom: 32,
+  },
+  errorContainer: {
+    backgroundColor: "rgba(0, 0, 0, 0.50)",
+    position: "absolute",
+    width: 250,
+    height: 80,
+    borderRadius: 16,
+    padding: 16,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 10,
+  },
+  error: {
+    fontFamily: "Roboto-Regular",
+    fontSize: 16,
+    lineHeight: 19,
+    fontWeight: "400",
+    textAlign: "center",
+    color: "#fff",
   },
   imageWrapper: {
     position: "relative",

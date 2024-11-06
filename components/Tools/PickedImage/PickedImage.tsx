@@ -8,7 +8,9 @@ import {
   ViewStyle,
   ImageStyle,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
+import { Screens } from "../../../utils/enums/routes";
 
 interface PickedImageProps {
   image: string;
@@ -32,18 +34,53 @@ export default function PickedImage({
   buttonIcon,
 }: PickedImageProps) {
   const [selectedImage, setSelectedImage] = useState<string>(image);
+  const navigator = useNavigation();
+
+  const handleImage = () => {
+    if (selectedImage && deleteImageFunc) {
+      deleteImage();
+      return;
+    }
+    showImageOptions();
+  };
+  const deleteImage = () => {
+    if (selectedImage && deleteImageFunc) {
+      setSelectedImage("");
+      handleSelectedImage("");
+    }
+  };
+  const showImageOptions = () => {
+    Alert.alert(
+      "Select Image",
+      "Choose an option to upload an image",
+      [
+        {
+          text: "Use Camera",
+          onPress: () => (navigator as any).navigate(Screens.Camera),
+        },
+        {
+          text: "Choose from Gallery",
+          onPress: pickImage,
+        },
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+      ],
+      { cancelable: true }
+    );
+  };
 
   useEffect(() => {
     setSelectedImage(image);
   }, [image]);
 
-  const pickImage = async (): Promise<void> => {
-    if (selectedImage && deleteImageFunc) {
-      setSelectedImage("");
-      handleSelectedImage("");
-      return;
-    }
+  const setImage = (uri: string) => {
+    setSelectedImage(uri);
+    handleSelectedImage(uri);
+  };
 
+  const pickImage = async (): Promise<void> => {
     const permissionResult =
       await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (permissionResult.granted === false) {
@@ -61,9 +98,7 @@ export default function PickedImage({
     });
 
     if (!result.canceled) {
-      const uri = result.assets[0].uri;
-      setSelectedImage(uri);
-      handleSelectedImage(uri);
+      setImage(result.assets[0].uri);
     }
   };
 
@@ -76,7 +111,7 @@ export default function PickedImage({
           style={stylesImage}
         />
       )}
-      <Pressable style={stylesButton} onPress={pickImage}>
+      <Pressable style={stylesButton} onPress={handleImage}>
         <Image style={stylesButtonIcon} source={buttonIcon} />
       </Pressable>
     </View>

@@ -11,9 +11,15 @@ export default StyleSheet.create({
     width: 343,
     height: 299,
   },
-  image: {
+  imageButton: {
     width: 343,
     height: 240,
+    borderRadius: 8,
+    backgroundColor: "#F6F6F6",
+  },
+  image: {
+    width: "100%",
+    height: "100%",
     borderRadius: 8,
   },
   title: {
@@ -38,6 +44,11 @@ export default StyleSheet.create({
   icon: {
     width: 16,
     height: 16,
+  },
+  locationWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
   textIcon: {
     color: "#BDBDBD",

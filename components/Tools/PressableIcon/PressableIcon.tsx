@@ -23,9 +23,9 @@ export default function PressableIcon({
   buttonStyle,
   iconStyle,
 }: PressableIconProps) {
-  const navigation = useNavigation();
+  const navigator = useNavigation();
   const handleComeBack = () => {
-    navigation.goBack();
+    navigator.goBack();
   };
 
   return (

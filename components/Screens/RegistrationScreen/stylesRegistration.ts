@@ -16,7 +16,6 @@ export default StyleSheet.create({
     justifyContent: "flex-end",
   },
   regWrapper: {
-    position: "relative",
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
     paddingTop: 92,

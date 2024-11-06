@@ -1,5 +1,5 @@
 import { View, Text, Image } from "react-native";
-import { useRoute, useNavigation } from "@react-navigation/native";
+import { useRoute, useNavigation, RouteProp } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import CreatePostsScreen from "../CreatePostsScreen/CreatePostsScreen";
 import PostsScreen from "../PostsScreen/PostsScreen";
@@ -7,24 +7,38 @@ import ProfileScreen from "../ProfileScreen/ProfileScreen";
 import { SafeAreaView } from "react-native-safe-area-context";
 import images from "../../../utils/images";
 import PressableIcon from "../../Tools/PressableIcon/PressableIcon";
-import {
-  RoutesNames,
-  Screens,
-  ScreensTitles,
-} from "../../../utils/enums/routes";
+import { Screens, ScreensTitles } from "../../../utils/enums/routes";
+import { useContext, useEffect } from "react";
+import { CurrentUserContext, DataHandlerContext } from "../../../App";
+import { RouteParams } from "../../../utils/interfaces/routeParams";
 import styles from "./stylesHome";
 
+type RegistrationScreenRouteProp = RouteProp<
+  RouteParams,
+  Screens.RegistrationScreen
+>;
 export default function Home() {
-  const { params } = useRoute();
-  const { user, dataHandler, updateComments } = params as any;
-  const navigation = useNavigation();
   const Tabs = createBottomTabNavigator();
+  const navigator = useNavigation();
+  const { currentUser, setCurrentUser } = useContext(CurrentUserContext);
+  const { userdataHandler } = useContext(DataHandlerContext);
+  const route = useRoute<RegistrationScreenRouteProp>();
+  const photoUri = route.params?.photoUri;
+
+  useEffect(() => {
+    const userData = { ...currentUser };
+    if (photoUri) {
+      userData.image = photoUri;
+      setCurrentUser(userData);
+      userdataHandler("users", { [currentUser.email]: { ...userData } });
+    }
+  }, [photoUri]);
 
   const handleLogout = () => {
-    (navigation as any).navigate(Screens.LoginScreen);
+    (navigator as any).navigate(Screens.LoginScreen);
   };
 
-  if (!user) {
+  if (!currentUser) {
     return (
       <SafeAreaView style={{ paddingLeft: 16, paddingRight: 16 }}>
         <Text>Loading...</Text>
@@ -36,11 +50,11 @@ export default function Home() {
       <Tabs.Navigator
         screenOptions={({ route }) => ({
           headerLeft: () =>
-            route.name === RoutesNames.CreatePosts ? (
+            route.name === Screens.CreatePosts ? (
               <PressableIcon icon={images.VECTOR} />
             ) : undefined,
           headerRight: () =>
-            route.name === RoutesNames.Posts ? (
+            route.name === Screens.Posts ? (
               <PressableIcon
                 icon={images.LOGOUT}
                 iconStyle={styles.logout}
@@ -61,9 +75,9 @@ export default function Home() {
           tabBarShowLabel: false,
           tabBarIcon: () => {
             let iconSource;
-            const postsTab = route.name === RoutesNames.Posts;
-            const createPostTab = route.name === RoutesNames.CreatePosts;
-            const profileTab = route.name === RoutesNames.Profile;
+            const postsTab = route.name === Screens.Posts;
+            const createPostTab = route.name === Screens.CreatePosts;
+            const profileTab = route.name === Screens.Profile;
             if (postsTab) {
               iconSource = images.CUBES;
             } else if (createPostTab) {
@@ -97,24 +111,21 @@ export default function Home() {
         })}
       >
         <Tabs.Screen
-          name={RoutesNames.Posts}
+          name={Screens.Posts}
           component={PostsScreen}
-          initialParams={{ user }}
           options={{ headerTitle: ScreensTitles.Posts }}
         />
         <Tabs.Screen
-          name={RoutesNames.CreatePosts}
+          name={Screens.CreatePosts}
           component={CreatePostsScreen}
           options={{
             tabBarStyle: { display: "none" },
             headerTitle: ScreensTitles.CreatePosts,
           }}
-          initialParams={{ user, dataHandler }}
         />
         <Tabs.Screen
-          name={RoutesNames.Profile}
+          name={Screens.Profile}
           component={ProfileScreen}
-          initialParams={{ user, dataHandler }}
           options={{ headerShown: false }}
         />
       </Tabs.Navigator>

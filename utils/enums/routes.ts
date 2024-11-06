@@ -2,13 +2,12 @@ enum Screens {
   RegistrationScreen = "Registration",
   LoginScreen = "Login",
   Home = "Home",
-}
-
-enum RoutesNames {
   Posts = "Posts",
   Profile = "Profile",
   CreatePosts = "Create post",
   Comments = "Comments",
+  Camera = "Camera",
+  Map = "Map",
 }
 
 enum ScreensTitles {
@@ -16,9 +15,10 @@ enum ScreensTitles {
   Profile = "Профіль",
   CreatePosts = "Створити публікацію",
   Comments = "Коментарі",
+  Camera = "Камера",
   RegistrationScreen = "Registration",
   LoginScreen = "Login",
   Home = "Home",
 }
 
-export { Screens, RoutesNames, ScreensTitles };
+export { Screens, ScreensTitles };

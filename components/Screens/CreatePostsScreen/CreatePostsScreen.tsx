@@ -1,13 +1,16 @@
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Alert, Text, View } from "react-native";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
+import * as Location from "expo-location";
 import PickedImage from "../../Tools/PickedImage/PickedImage";
 import images from "../../../utils/images";
 import Input from "../../Tools/Input/Input";
 import Button from "../../Tools/Button/Button";
 import IconInput from "../../Tools/IconInput/IconInput";
 import ButtonIcon from "../../Tools/ButtonIcon/ButtonIcon";
-import { RoutesNames } from "../../../utils/enums/routes";
+import { Screens } from "../../../utils/enums/routes";
+import { CurrentUserContext, DataHandlerContext, Post } from "../../../App";
+import { RouteParams } from "../../../utils/interfaces/routeParams";
 import styles from "./stylesCreatePostsScreen";
 export type PostComment = {
   id: string;
@@ -20,105 +23,170 @@ export type PostComments = {
 };
 
 export default function CreatePostsScreen() {
-  const navigation = useNavigation();
-  const { params } = useRoute();
-  const { user, dataHandler } = params as any;
-  const [title, setTitle] = useState<string>("");
-  const [pinOnMap, setPinOnMap] = useState<string>("");
+  const { userdataHandler } = useContext(DataHandlerContext);
+  const { currentUser } = useContext(CurrentUserContext);
+  const navigator = useNavigation();
   const [selectedImage, setSelectedImage] = useState<string>("");
+  const [title, setTitle] = useState<string>("");
+  const [location, setLocation] = useState<string>("");
+  const [errorMsg, setErrorMsg] = useState<string>("");
+  const route =
+    useRoute<RouteProp<{ Registration: RouteParams }, "Registration">>();
+  const photoUri = route.params?.photoUri;
 
-  const createPost = () => {
-    if (!title || !pinOnMap || !selectedImage) {
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        setErrorMsg("Permission to access location was denied");
+        return;
+      }
+    })();
+  }, [location]);
+
+  useEffect(() => {
+    if (photoUri) {
+      setSelectedImage(photoUri);
+    }
+  }, [photoUri]);
+
+  const resetStats = () => {
+    setSelectedImage("");
+    setTitle("");
+    setLocation("");
+    setErrorMsg("");
+  };
+
+  const createPost = async () => {
+    if (!title || !location || !selectedImage) {
       Alert.alert("Заповніть усі поля");
       return;
     }
 
-    const newPost = {
+    setErrorMsg("Please wait...");
+
+    const pinOnMap = await getLocation();
+
+    if (
+      !pinOnMap ||
+      pinOnMap.latitude === undefined ||
+      pinOnMap.longitude === undefined
+    ) {
+      setErrorMsg("Could not retrieve location data. Try again later.");
+      setTimeout(() => {
+        resetStats();
+        (navigator as any).navigate(Screens.Posts);
+      }, 3000);
+
+      return;
+    }
+
+    const newPost: Post = {
       id: Date.now().toString(),
-      owner: user.email,
+      owner: currentUser.email,
       title,
-      location: pinOnMap,
+      location,
       image: selectedImage,
       comments: {} as PostComments,
+      coordinates: {
+        latitude: pinOnMap.latitude,
+        longitude: pinOnMap.longitude,
+      },
     };
-    dataHandler("posts", { [newPost.id]: newPost });
+    userdataHandler("posts", { [newPost.id]: newPost });
 
-    setSelectedImage("");
-    setTitle("");
-    setPinOnMap("");
+    resetStats();
 
-    (navigation as any).navigate(RoutesNames.Posts, { user });
+    (navigator as any).navigate(Screens.Posts);
   };
 
   const deletePost = () => {
-    setSelectedImage("");
-    setTitle("");
-    setPinOnMap("");
-    (navigation as any).navigate(RoutesNames.Posts, { user });
+    resetStats();
+    (navigator as any).navigate(Screens.Posts);
+  };
+  const getLocation = async () => {
+    try {
+      const data = await Location.getCurrentPositionAsync({});
+      return {
+        latitude: data.coords.latitude,
+        longitude: data.coords.longitude,
+      };
+    } catch (error) {
+      setErrorMsg("Could not retrieve location.");
+    }
   };
 
   return (
     <View style={styles.container}>
-      <View style={styles.wrapper}>
-        <PickedImage
-          stylesImageWrapper={styles.imageWrapper}
-          stylesImage={styles.image}
-          stylesButton={[
-            styles.imageButton,
-            selectedImage ? styles.imageButtonReady : null,
-          ]}
-          stylesButtonIcon={[
-            styles.buttonIcon,
-            selectedImage ? styles.buttonIconReady : null,
-          ]}
-          buttonIcon={images.CAMERA}
-          deleteImageFunc={false}
-          image={selectedImage}
-          handleSelectedImage={setSelectedImage}
+      {errorMsg && (
+        <View style={styles.errorContainer}>
+          <Text style={styles.error}>{errorMsg}</Text>
+        </View>
+      )}
+      <View style={styles.postWrapper}>
+        <View style={styles.pickedImageWrapper}>
+          <PickedImage
+            stylesImageWrapper={styles.imageWrapper}
+            stylesImage={styles.image}
+            stylesButton={[
+              styles.imageButton,
+              selectedImage ? styles.imageButtonReady : null,
+            ]}
+            stylesButtonIcon={[
+              styles.buttonIcon,
+              selectedImage ? styles.buttonIconReady : null,
+            ]}
+            buttonIcon={images.CAMERA}
+            deleteImageFunc={false}
+            image={selectedImage}
+            handleSelectedImage={setSelectedImage}
+          />
+          <Text style={styles.text}>
+            {selectedImage ? "Редагувати фото" : "Завантажте фото"}
+          </Text>
+        </View>
+        <Input
+          stylesInput={styles.textInput}
+          stylesFocusedInput={styles.textInputFocused}
+          textContentOption="name"
+          placeholder="Назва..."
+          value={title}
+          onChangeText={setTitle}
         />
-        <Text style={styles.text}>
-          {selectedImage ? "Редагувати фото" : "Завантажте фото"}
-        </Text>
+        <IconInput
+          iconSource={images.PIN_MAP}
+          placeholder="Місцевість..."
+          textContentOption="location"
+          value={location}
+          onChangeText={setLocation}
+          stylesWrapper={styles.mapWrapper}
+          stylesInput={[styles.textInput, styles.textInputMap]}
+          stylesFocusedInput={styles.textInputFocused}
+          stylesIcon={styles.mapIcon}
+        />
+        <Button
+          text="Опублікувати"
+          stylesButton={[
+            styles.buttonSubmit,
+            selectedImage && title && location
+              ? styles.buttonSubmitReady
+              : null,
+          ]}
+          stylesText={[
+            styles.buttonSubmitText,
+            selectedImage && title && location
+              ? styles.buttonSubmitTextReady
+              : null,
+          ]}
+          onPress={createPost}
+        />
+        <ButtonIcon
+          stylesButton={styles.buttonDelete}
+          stylesIcon={styles.buttonDeleteIcon}
+          icon={images.TRASH_BOX}
+          onPress={deletePost}
+        />
       </View>
-      <Input
-        stylesInput={styles.textInput}
-        stylesFocusedInput={styles.textInputFocused}
-        textContentOption="name"
-        placeholder="Назва..."
-        value={title}
-        onChangeText={setTitle}
-      />
-      <IconInput
-        iconSource={images.PIN_MAP}
-        placeholder="Місцевість..."
-        textContentOption="location"
-        value={pinOnMap}
-        onChangeText={setPinOnMap}
-        stylesWrapper={styles.mapWrapper}
-        stylesInput={[styles.textInput, styles.textInputMap]}
-        stylesFocusedInput={styles.textInputFocused}
-        stylesIcon={styles.mapIcon}
-      />
-      <Button
-        text="Опублікувати"
-        stylesButton={[
-          styles.buttonSubmit,
-          selectedImage && title && pinOnMap ? styles.buttonSubmitReady : null,
-        ]}
-        stylesText={[
-          styles.buttonSubmitText,
-          selectedImage && title && pinOnMap
-            ? styles.buttonSubmitTextReady
-            : null,
-        ]}
-        onPress={createPost}
-      />
-      <ButtonIcon
-        stylesButton={styles.buttonDelete}
-        stylesIcon={styles.buttonDeleteIcon}
-        icon={images.TRASH_BOX}
-        onPress={deletePost}
-      />
     </View>
   );
 }

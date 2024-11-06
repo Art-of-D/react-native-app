@@ -8,6 +8,9 @@ export default StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#fff",
   },
+  keyboardContainer: {
+    flex: 1,
+  },
   image: {
     width: 343,
     height: 240,
@@ -55,7 +58,7 @@ export default StyleSheet.create({
   },
   sendButton: {
     position: "absolute",
-    right: 16,
+    right: 24,
     width: 34,
     height: 34,
     justifyContent: "center",

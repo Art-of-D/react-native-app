@@ -18,7 +18,7 @@ import { UsersContext } from "../../../App";
 import styles from "./stylesLogin";
 
 export default function LoginScreen() {
-  const navigation = useNavigation();
+  const navigator = useNavigation();
   const users = useContext<any>(UsersContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
