@@ -6,12 +6,16 @@ import PostsScreen from "../PostsScreen/PostsScreen";
 import ProfileScreen from "../ProfileScreen/ProfileScreen";
 import { SafeAreaView } from "react-native-safe-area-context";
 import images from "../../../utils/images";
-import PressableIcon from "../../Tools/PressableIcon/PressableIcon";
+import PressableIcon from "../../tools/PressableIcon/PressableIcon";
 import { Screens, ScreensTitles } from "../../../utils/enums/routes";
-import { useContext, useEffect } from "react";
-import { CurrentUserContext, DataHandlerContext } from "../../../App";
+import { useEffect } from "react";
 import { RouteParams } from "../../../utils/interfaces/routeParams";
+import { useDispatch, useSelector } from "react-redux";
+import { setCurrentUser } from "../../../redux/auth/authReducer";
 import styles from "./stylesHome";
+import { User } from "../../../utils/types/user";
+import { updateUserData } from "../../../utils/firestore";
+import { logoutDB } from "../../../utils/auth";
 
 type RegistrationScreenRouteProp = RouteProp<
   RouteParams,
@@ -20,22 +24,22 @@ type RegistrationScreenRouteProp = RouteProp<
 export default function Home() {
   const Tabs = createBottomTabNavigator();
   const navigator = useNavigation();
-  const { currentUser, setCurrentUser } = useContext(CurrentUserContext);
-  const { userdataHandler } = useContext(DataHandlerContext);
+  const dispatch = useDispatch();
+  const currentUser = useSelector(
+    (state: any) => state.auth.currentUser
+  ) as User;
   const route = useRoute<RegistrationScreenRouteProp>();
   const photoUri = route.params?.photoUri;
 
   useEffect(() => {
-    const userData = { ...currentUser };
     if (photoUri) {
-      userData.image = photoUri;
-      setCurrentUser(userData);
-      userdataHandler("users", { [currentUser.email]: { ...userData } });
+      updateUserData(currentUser.userId, photoUri);
+      dispatch(setCurrentUser({ image: photoUri }));
     }
   }, [photoUri]);
 
   const handleLogout = () => {
-    (navigator as any).navigate(Screens.LoginScreen);
+    logoutDB(dispatch);
   };
 
   if (!currentUser) {

@@ -2,6 +2,7 @@ enum Screens {
   RegistrationScreen = "Registration",
   LoginScreen = "Login",
   Home = "Home",
+  HomeStack = "HomeStack",
   Posts = "Posts",
   Profile = "Profile",
   CreatePosts = "Create post",

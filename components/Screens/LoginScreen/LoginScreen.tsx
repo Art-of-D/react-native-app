@@ -1,52 +1,45 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import {
   Text,
   View,
   ImageBackground,
   TouchableOpacity,
-  Alert,
   KeyboardAvoidingView,
   Keyboard,
   TouchableWithoutFeedback,
   Platform,
+  Alert,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { useDispatch } from "react-redux";
 import constants from "../../../utils/images";
-import Input from "../../Tools/Input/Input";
-import Button from "../../Tools/Button/Button";
-import { UsersContext } from "../../../App";
+import Input from "../../tools/Input/Input";
+import Button from "../../tools/Button/Button";
+import { ShowPassword } from "../../../utils/enums/auth";
+import { Screens } from "../../../utils/enums/routes";
+import { loginDB } from "../../../utils/auth";
+import { AuthCredentials, User } from "../../../utils/types/user";
 import styles from "./stylesLogin";
 
 export default function LoginScreen() {
   const navigator = useNavigation();
-  const users = useContext<any>(UsersContext);
+  const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
 
   const toggleShowPassword = () => setShowPassword(!showPassword);
+  const [showPassword, setShowPassword] = useState(false);
 
-  const handleLogin = () => {
-    if (!email || !password) {
-      Alert.alert("Введіть всі поля");
-      return;
-    }
-    const user = users[email];
-
-    if (!user) {
-      Alert.alert("Такого користувача не існує");
-      return;
-    }
-
-    if (user.password !== password) {
-      Alert.alert("Невірний пароль");
+  const handleLogin = async () => {
+    const credentials: User = await loginDB(
+      { email, password } as AuthCredentials,
+      dispatch
+    );
+    if (!credentials?.userId) {
       return;
     }
     setEmail("");
     setPassword("");
-    setShowPassword(false);
-
-    (navigation as any).navigate("Home", { user });
   };
 
   return (
@@ -91,7 +84,7 @@ export default function LoginScreen() {
                     style={styles.toggleButton}
                   >
                     <Text style={styles.toggleText}>
-                      {showPassword ? "Сховати" : "Показати"}
+                      {showPassword ? ShowPassword.SHOW : ShowPassword.HIDE}
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -106,7 +99,9 @@ export default function LoginScreen() {
                 stylesButton={styles.buttonReg}
                 text={"Немає акаунту? Зареєструватися"}
                 stylesText={styles.buttonTextReg}
-                onPress={() => (navigation as any).navigate("Registration")}
+                onPress={() =>
+                  (navigator as any).navigate(Screens.RegistrationScreen)
+                }
               ></Button>
             </View>
           </KeyboardAvoidingView>

@@ -4,17 +4,16 @@ import images from "../../../utils/images";
 import { useNavigation } from "@react-navigation/native";
 import { Screens } from "../../../utils/enums/routes";
 import ButtonIcon from "../ButtonIcon/ButtonIcon";
-import { Post } from "../../../App";
+import { PostType } from "../../../utils/types/post";
 import styles from "./stylesPost";
 
 interface PostProps {
-  post: Post;
+  post: PostType;
   onPress: () => void;
 }
 
 export default function PostComponent({ onPress, post }: PostProps) {
   const navigator = useNavigation();
-
   return (
     <View style={styles.container}>
       <View style={styles.postWrapper}>
@@ -31,12 +30,16 @@ export default function PostComponent({ onPress, post }: PostProps) {
             stylesIcon={styles.icon}
             iconSource={images.COMMENT}
             stylesText={styles.textIcon}
-            text={Object.values(post.comments).length}
+            text={post?.comments?.length > 0 ? post.comments.length : 0}
           />
           <View style={styles.locationWrapper}>
             <ButtonIcon
               stylesButton={styles.iconTextWrapper}
-              onPress={() => (navigator as any).navigate(Screens.Map, { post })}
+              onPress={() =>
+                (navigator as any).navigate(Screens.Map, {
+                  post,
+                })
+              }
               icon={images.PIN_MAP}
               stylesIcon={styles.icon}
             />

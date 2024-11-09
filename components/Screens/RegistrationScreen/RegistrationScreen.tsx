@@ -2,31 +2,28 @@ import {
   Text,
   View,
   ImageBackground,
-  Alert,
   KeyboardAvoidingView,
   Keyboard,
   TouchableWithoutFeedback,
   Platform,
 } from "react-native";
-import { useContext, useEffect, useState } from "react";
-import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
-import PickedImage from "../../Tools/PickedImage/PickedImage";
-import Input from "../../Tools/Input/Input";
-import Button from "../../Tools/Button/Button";
+import { useEffect, useState } from "react";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import PickedImage from "../../tools/PickedImage/PickedImage";
+import Input from "../../tools/Input/Input";
+import Button from "../../tools/Button/Button";
 import constants from "../../../utils/images";
-import {
-  CurrentUserContext,
-  DataHandlerContext,
-  UsersContext,
-} from "../../../App";
 import { PostScreenRouteProp } from "../../../utils/interfaces/routeParams";
+import { useDispatch } from "react-redux";
+import { Screens } from "../../../utils/enums/routes";
+import { ShowPassword } from "../../../utils/enums/auth";
+import { registrationDB } from "../../../utils/auth";
+import { RegistrationCredentials } from "../../../utils/types/user";
 import styles from "./stylesRegistration";
 
 export default function RegistrationScreen() {
   const navigator = useNavigation();
-  const users = useContext(UsersContext);
-  const { userdataHandler } = useContext(DataHandlerContext);
-  const { setCurrentUser } = useContext(CurrentUserContext);
+  const dispatch = useDispatch();
   const route = useRoute<PostScreenRouteProp>();
   const photoUri = route.params?.photoUri;
   const [loginValue, setLoginValue] = useState("");
@@ -35,50 +32,37 @@ export default function RegistrationScreen() {
   const [secureTextEntryValue, setSecureTextEntryValue] = useState(true);
   const [selectedImage, setSelectedImage] = useState<string>("");
 
-  useEffect(() => {
-    if (photoUri) {
-      setSelectedImage(photoUri);
-    }
-  }, [photoUri]);
+  // useEffect(() => {
+  //   if (photoUri) {
+  //     setSelectedImage(photoUri);
+  //   }
+  // }, [photoUri]);
 
   const togglePasswordVisibility = () => {
     setSecureTextEntryValue(!secureTextEntryValue);
   };
 
-  const registration = () => {
-    if (!loginValue || !emailValue || !passwordValue || !selectedImage) {
-      Alert.alert("Заповніть усі поля");
+  const handleRegistration = () => {
+    const credentials = registrationDB(
+      {
+        email: emailValue,
+        image: selectedImage,
+        name: loginValue,
+        password: passwordValue,
+      } as RegistrationCredentials,
+      dispatch
+    );
+
+    if (!credentials) {
       return;
     }
-    if (!emailValue.includes("@")) {
-      Alert.alert("Невірний формат пошти");
-      return;
-    }
-    if (passwordValue.length < 6) {
-      Alert.alert("Пароль повинен містити не менше 6 символів");
-      return;
-    }
-    if (users && users[emailValue]) {
-      Alert.alert("Користувач з такою поштою вже існує");
-      return;
-    }
-    const data = {
-      name: loginValue,
-      email: emailValue,
-      password: passwordValue,
-      image: selectedImage,
-      loggedIn: true,
-    };
-    userdataHandler("users", { [emailValue]: { ...data } });
+
     setEmailValue("");
     setLoginValue("");
     setPasswordValue("");
-    setSecureTextEntryValue(true);
     setSelectedImage("");
-
-    setCurrentUser(data);
-    (navigator as any).navigate("Home");
   };
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
@@ -144,7 +128,11 @@ export default function RegistrationScreen() {
                     onPress={togglePasswordVisibility}
                     stylesButton={styles.toggleButton}
                     stylesText={styles.toggleText}
-                    text={secureTextEntryValue ? "Показати" : "Сховати"}
+                    text={
+                      secureTextEntryValue
+                        ? ShowPassword.SHOW
+                        : ShowPassword.HIDE
+                    }
                   ></Button>
                 </View>
               </View>
@@ -152,13 +140,13 @@ export default function RegistrationScreen() {
                 stylesButton={styles.buttonReg}
                 text={"Зареєструватися"}
                 stylesText={styles.buttonRegText}
-                onPress={registration}
+                onPress={handleRegistration}
               ></Button>
               <Button
                 stylesButton={styles.buttonLogin}
                 text={"Вже є акаунт? Увійти"}
                 stylesText={styles.buttonLoginText}
-                onPress={() => (navigator as any).navigate("Login")}
+                onPress={() => (navigator as any).navigate(Screens.LoginScreen)}
               ></Button>
             </View>
           </KeyboardAvoidingView>

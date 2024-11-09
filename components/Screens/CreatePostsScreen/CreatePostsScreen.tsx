@@ -1,30 +1,32 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Alert, Text, View } from "react-native";
-import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
+import {
+  CommonActions,
+  RouteProp,
+  useNavigation,
+  useRoute,
+} from "@react-navigation/native";
 import * as Location from "expo-location";
-import PickedImage from "../../Tools/PickedImage/PickedImage";
+import PickedImage from "../../tools/PickedImage/PickedImage";
 import images from "../../../utils/images";
-import Input from "../../Tools/Input/Input";
-import Button from "../../Tools/Button/Button";
-import IconInput from "../../Tools/IconInput/IconInput";
-import ButtonIcon from "../../Tools/ButtonIcon/ButtonIcon";
+import Input from "../../tools/Input/Input";
+import Button from "../../tools/Button/Button";
+import IconInput from "../../tools/IconInput/IconInput";
+import ButtonIcon from "../../tools/ButtonIcon/ButtonIcon";
 import { Screens } from "../../../utils/enums/routes";
-import { CurrentUserContext, DataHandlerContext, Post } from "../../../App";
 import { RouteParams } from "../../../utils/interfaces/routeParams";
+import { useSelector } from "react-redux";
+import { Post, PostComments } from "../../../utils/types/post";
 import styles from "./stylesCreatePostsScreen";
-export type PostComment = {
-  id: string;
-  text: string;
-  date: string;
-  email: string;
-};
-export type PostComments = {
-  [key: string]: PostComment;
-};
+import { addPost } from "../../../utils/firestore";
+
+enum ImageTips {
+  EDIT = "Редагувати фото",
+  ADD = "Завантажте фото",
+}
 
 export default function CreatePostsScreen() {
-  const { userdataHandler } = useContext(DataHandlerContext);
-  const { currentUser } = useContext(CurrentUserContext);
+  const currentUser = useSelector((state: any) => state.auth.currentUser);
   const navigator = useNavigation();
   const [selectedImage, setSelectedImage] = useState<string>("");
   const [title, setTitle] = useState<string>("");
@@ -75,7 +77,8 @@ export default function CreatePostsScreen() {
       setErrorMsg("Could not retrieve location data. Try again later.");
       setTimeout(() => {
         resetStats();
-        (navigator as any).navigate(Screens.Posts);
+        (navigator as any).goBack();
+        fetchPosts();
       }, 3000);
 
       return;
@@ -93,8 +96,8 @@ export default function CreatePostsScreen() {
         longitude: pinOnMap.longitude,
       },
     };
-    userdataHandler("posts", { [newPost.id]: newPost });
 
+    addPost(currentUser.userId, newPost);
     resetStats();
 
     (navigator as any).navigate(Screens.Posts);
@@ -104,6 +107,7 @@ export default function CreatePostsScreen() {
     resetStats();
     (navigator as any).navigate(Screens.Posts);
   };
+
   const getLocation = async () => {
     try {
       const data = await Location.getCurrentPositionAsync({});
@@ -142,7 +146,7 @@ export default function CreatePostsScreen() {
             handleSelectedImage={setSelectedImage}
           />
           <Text style={styles.text}>
-            {selectedImage ? "Редагувати фото" : "Завантажте фото"}
+            {selectedImage ? ImageTips.EDIT : ImageTips.ADD}
           </Text>
         </View>
         <Input
@@ -189,4 +193,7 @@ export default function CreatePostsScreen() {
       </View>
     </View>
   );
+}
+function fetchPosts() {
+  throw new Error("Function not implemented.");
 }

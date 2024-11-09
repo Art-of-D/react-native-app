@@ -1,8 +1,14 @@
 import React from "react";
 import { View, Text, Image } from "react-native";
-import { PostComment } from "../../Screens/CreatePostsScreen/CreatePostsScreen";
 import { formatDate } from "../../../utils/formatDate";
 import styles from "./stylesComment";
+
+type PostComment = {
+  id: string;
+  text: string;
+  date: string;
+  email: string;
+};
 
 const Comment = ({
   comment,

@@ -9,8 +9,8 @@ import {
   ImageStyle,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import * as ImagePicker from "expo-image-picker";
 import { Screens } from "../../../utils/enums/routes";
+import { pickImage } from "../../../utils/imagePicker";
 
 interface PickedImageProps {
   image: string;
@@ -36,19 +36,18 @@ export default function PickedImage({
   const [selectedImage, setSelectedImage] = useState<string>(image);
   const navigator = useNavigation();
 
-  const handleImage = () => {
-    if (selectedImage && deleteImageFunc) {
-      deleteImage();
-      return;
-    }
-    showImageOptions();
-  };
   const deleteImage = () => {
     if (selectedImage && deleteImageFunc) {
       setSelectedImage("");
       handleSelectedImage("");
     }
   };
+
+  const setImage = (uri: string) => {
+    setSelectedImage(uri);
+    handleSelectedImage(uri);
+  };
+
   const showImageOptions = () => {
     Alert.alert(
       "Select Image",
@@ -60,7 +59,7 @@ export default function PickedImage({
         },
         {
           text: "Choose from Gallery",
-          onPress: pickImage,
+          onPress: pickImageAsync,
         },
         {
           text: "Cancel",
@@ -71,35 +70,23 @@ export default function PickedImage({
     );
   };
 
+  const pickImageAsync = async () => {
+    const image = await pickImage();
+    if (image) {
+      setImage(image);
+    }
+  };
+
   useEffect(() => {
     setSelectedImage(image);
   }, [image]);
 
-  const setImage = (uri: string) => {
-    setSelectedImage(uri);
-    handleSelectedImage(uri);
-  };
-
-  const pickImage = async (): Promise<void> => {
-    const permissionResult =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (permissionResult.granted === false) {
-      Alert.alert(
-        "Permission Denied",
-        "You need to enable permission to access photos."
-      );
+  const handleImage = () => {
+    if (selectedImage && deleteImageFunc) {
+      deleteImage();
       return;
     }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      setImage(result.assets[0].uri);
-    }
+    showImageOptions();
   };
 
   return (

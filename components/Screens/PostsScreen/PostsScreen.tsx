@@ -1,21 +1,37 @@
+import { useCallback, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Text, View, Image, ScrollView } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { useContext } from "react";
-import { CurrentUserContext, PostsContext } from "../../../App";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { Screens } from "../../../utils/enums/routes";
-import Post from "../../Tools/Post/PostComponent";
+import Post from "../../tools/Post/PostComponent";
+import { getPosts } from "../../../utils/firestore";
+import { PostType } from "../../../utils/types/post";
 import styles from "./stylesPostsScreen";
+import { fetchPosts } from "../../../redux/actions/posts";
+
 export default function PostsScreen() {
   const navigator = useNavigation();
-  const { currentUser } = useContext(CurrentUserContext);
-  const posts = useContext(PostsContext);
+  const dispatch = useDispatch();
+  const currentUser = useSelector((state: any) => state.auth.currentUser);
+  const posts = useSelector((state: any) => state.posts);
+  const [selectedImage, setSelectedImage] = useState<string>(currentUser.image);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchPosts(dispatch);
+    }, [navigator, getPosts])
+  );
+
+  useEffect(() => {
+    setSelectedImage(currentUser.image);
+  }, [currentUser.image]);
 
   return (
     <View style={styles.container}>
       <View style={styles.userContainer}>
         <Image
           source={{
-            uri: currentUser.image,
+            uri: selectedImage,
           }}
           style={styles.image}
         />
@@ -25,19 +41,21 @@ export default function PostsScreen() {
         </View>
       </View>
       <ScrollView style={styles.postsContainer}>
-        {posts &&
-          Object.values(posts).map((post: any) => (
+        {posts?.length > 0 ? (
+          posts.map((post: PostType) => (
             <Post
               key={post.id}
               post={post}
               onPress={() => {
                 (navigator as any).navigate(Screens.Comments, {
-                  currentUser,
                   post,
                 });
               }}
             />
-          ))}
+          ))
+        ) : (
+          <Text>No posts...</Text>
+        )}
       </ScrollView>
     </View>
   );

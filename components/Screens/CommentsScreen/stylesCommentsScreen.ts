@@ -1,15 +1,15 @@
 import { StyleSheet } from "react-native";
 
 export default StyleSheet.create({
+  keyboardContainer: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     paddingLeft: 16,
     paddingRight: 16,
     alignItems: "center",
     backgroundColor: "#fff",
-  },
-  keyboardContainer: {
-    flex: 1,
   },
   image: {
     width: 343,
@@ -18,12 +18,14 @@ export default StyleSheet.create({
     marginBottom: 32,
     resizeMode: "cover",
     borderRadius: 8,
+    zIndex: 10,
   },
   commentsList: {
     height: 323,
     width: 343,
     paddingBottom: 32,
     gap: 24,
+    overflow: "hidden",
   },
   commentContainer: {
     flexDirection: "row",

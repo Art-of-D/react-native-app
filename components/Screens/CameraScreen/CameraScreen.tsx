@@ -2,12 +2,17 @@ import { useRef, useState } from "react";
 import { Button, Text, TouchableOpacity, View } from "react-native";
 import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
-import styles from "./stylesCameraScreen";
 import { useNavigation, useNavigationState } from "@react-navigation/native";
+import styles from "./stylesCameraScreen";
 
 enum CameraFacing {
   BACK = "back",
   FRONT = "front",
+}
+
+enum CameraAction {
+  TAKE_PHOTO = "Capture",
+  FLIP = "Flip camera",
 }
 export default function CameraScreen() {
   const [facing, setFacing] = useState<CameraType>(CameraFacing.BACK);
@@ -55,10 +60,10 @@ export default function CameraScreen() {
       <CameraView style={styles.camera} facing={facing} ref={cameraRef}>
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
-            <Text style={styles.text}>Flip Camera</Text>
+            <Text style={styles.text}>{CameraAction.FLIP}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={takePhoto}>
-            <Text style={styles.text}>Capture</Text>
+            <Text style={styles.text}>{CameraAction.TAKE_PHOTO}</Text>
           </TouchableOpacity>
         </View>
       </CameraView>

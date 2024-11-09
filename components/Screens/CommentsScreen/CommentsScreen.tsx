@@ -1,7 +1,9 @@
+import { useEffect, useState } from "react";
 import {
   View,
   Image,
   ScrollView,
+  Text,
   TextInput,
   Pressable,
   TouchableWithoutFeedback,
@@ -10,27 +12,20 @@ import {
   Platform,
 } from "react-native";
 import images from "../../../utils/images";
-import { useContext, useState } from "react";
-import {
-  CurrentUserContext,
-  DataHandlerContext,
-  Post,
-  PostsContext,
-  UsersContext,
-} from "../../../App";
 import { useRoute } from "@react-navigation/native";
-import { PostComment } from "../CreatePostsScreen/CreatePostsScreen";
-import Comment from "../../Tools/Comment/Comment";
+import { useDispatch, useSelector } from "react-redux";
+import Comment from "../../tools/Comment/Comment";
 import { PostScreenRouteProp } from "../../../utils/interfaces/routeParams";
+import { PostType, PostComment } from "../../../utils/types/post";
+import { getPostById, updateComments } from "../../../utils/firestore";
 import styles from "./stylesCommentsScreen";
 
 export default function CommentsScreen() {
-  const { updateComments } = useContext(DataHandlerContext);
-  const users = useContext(UsersContext);
-  const posts = useContext(PostsContext);
-  const { currentUser } = useContext(CurrentUserContext);
+  const dispatch = useDispatch();
+  const currentUser = useSelector((state: any) => state.auth.currentUser);
   const route = useRoute<PostScreenRouteProp>();
-  const post = route.params?.post as Post;
+  const postRedux = route.params?.post as PostType;
+  const [post, setPost] = useState<PostType>(postRedux);
   const [comment, setComment] = useState("");
 
   const handleComment = () => {
@@ -41,10 +36,22 @@ export default function CommentsScreen() {
         date: new Date().toISOString(),
         email: currentUser.email,
       };
-      updateComments(post.id, newComment);
+      updateComments(currentUser.userId, postRedux.id, newComment);
       setComment("");
     }
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await getPostById(currentUser.userId, postRedux.id);
+      if (data) {
+        setPost(data);
+      }
+    };
+
+    fetchData();
+  }, [postRedux, handleComment]);
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <KeyboardAvoidingView
@@ -56,32 +63,31 @@ export default function CommentsScreen() {
         style={styles.keyboardContainer}
       >
         <View style={styles.container}>
-          <Image
-            source={post?.image ? { uri: post.image } : undefined}
-            style={styles.image}
-          />
-
+          {post.image ? (
+            <Image source={{ uri: post.image }} style={styles.image} />
+          ) : (
+            <Text style={styles.image}>Image not available</Text>
+          )}
           <ScrollView contentContainerStyle={styles.commentsList}>
-            {posts &&
-              posts[post.id].comments &&
-              Object.values(posts[post.id].comments).map((commentData) => (
-                <Comment
-                  key={commentData.id}
-                  comment={commentData}
-                  userImage={
-                    users && users[commentData.email].image
-                      ? users[commentData.email]?.image
-                      : undefined
-                  }
-                  stylesComment={
-                    commentData.email === post.owner
-                      ? styles.commentOwner
-                      : styles.commentUser
-                  }
-                />
-              ))}
+            {post.comments &&
+              Object.values(post.comments).length > 0 &&
+              (Object.values(post.comments) as unknown as PostComment[]).map(
+                (commentData: PostComment) => (
+                  <Comment
+                    key={commentData.id}
+                    comment={commentData}
+                    userImage={
+                      currentUser.image ? currentUser.image : undefined
+                    }
+                    stylesComment={
+                      commentData.email === post.owner
+                        ? styles.commentOwner
+                        : styles.commentUser
+                    }
+                  />
+                )
+              )}
           </ScrollView>
-
           <View style={styles.inputContainer}>
             <TextInput
               style={styles.input}

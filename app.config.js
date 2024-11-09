@@ -3,7 +3,7 @@ import "dotenv/config";
 export default {
   expo: {
     name: "react-native-app",
-    version: "1.0.3",
+    version: "1.1.0",
     orientation: "portrait",
     ios: {
       supportsTablet: true,

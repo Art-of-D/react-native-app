@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
-import { Post } from "../../../App";
-import styles from "./stylesMapScreen";
 import { useRoute } from "@react-navigation/native";
 import { MapScreenRouteProp } from "../../../utils/interfaces/routeParams";
+import { PostType } from "../../../utils/types/post";
+import styles from "./stylesMapScreen";
 
 type Marker = {
   id: string;
@@ -18,7 +18,7 @@ type Marker = {
 
 export default function MapScreen() {
   const route = useRoute<MapScreenRouteProp>();
-  const post = route.params?.post as Post;
+  const post = route.params?.post as PostType;
   const [marker, setMarker] = useState<Marker>({
     id: "default",
     title: "Default Location",
@@ -35,8 +35,8 @@ export default function MapScreen() {
       title: post.title,
       owner: post.owner,
       coordinates: {
-        latitude: post.coordinates.latitude,
-        longitude: post.coordinates.longitude,
+        latitude: post.coordinates.latitude ?? 0,
+        longitude: post.coordinates.longitude ?? 0,
       },
     };
     setMarker(postMarker);

@@ -1,32 +1,45 @@
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useDispatch, useSelector } from "react-redux";
 import { Text, View, ScrollView, ImageBackground } from "react-native";
-import PickedImage from "../../Tools/PickedImage/PickedImage";
+import PickedImage from "../../tools/PickedImage/PickedImage";
 import constants from "../../../utils/images";
-import {
-  CurrentUserContext,
-  DataHandlerContext,
-  PostsContext,
-} from "../../../App";
-import Post from "../../Tools/Post/PostComponent";
-import PressableIcon from "../../Tools/PressableIcon/PressableIcon";
+import Post from "../../tools/Post/PostComponent";
+import PressableIcon from "../../tools/PressableIcon/PressableIcon";
 import images from "../../../utils/images";
 import { Screens } from "../../../utils/enums/routes";
-import { useNavigation } from "@react-navigation/native";
+import { logoutDB } from "../../../utils/auth";
+import { PostType } from "../../../utils/types/post";
+import { fetchUserPosts } from "../../../redux/actions/posts";
+import { updateAvatar } from "../../../redux/actions/user";
 import styles from "./stylesProfileScreen";
 export default function ProfileScreen() {
-  const { userdataHandler } = useContext(DataHandlerContext);
-  const { currentUser } = useContext(CurrentUserContext);
   const navigator = useNavigation();
-  const posts = useContext(PostsContext);
+  const dispatch = useDispatch();
+  const currentUser = useSelector((state: any) => state.auth.currentUser);
+  const posts = useSelector((state: any) => state.userPosts);
   const [selectedImage, setSelectedImage] = useState<string>(currentUser.image);
 
+  useFocusEffect(
+    useCallback(() => {
+      fetchUserPosts(currentUser.userId, dispatch);
+    }, [navigator])
+  );
+
+  const handleImage = () => {
+    if (currentUser.image !== selectedImage) {
+      updateAvatar(selectedImage, currentUser.userId, dispatch);
+    }
+  };
+
   useEffect(() => {
-    setSelectedImage(currentUser.image);
-  }, [currentUser.image]);
+    handleImage();
+  }, [selectedImage]);
 
   const handleLogout = () => {
-    (navigator as any).navigate(Screens.LoginScreen);
+    logoutDB(dispatch);
   };
+
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -57,20 +70,21 @@ export default function ProfileScreen() {
           ></PickedImage>
           <Text style={styles.header2}>{currentUser.name}</Text>
           <ScrollView style={styles.postsContainer}>
-            {posts &&
-              Object.values(posts).map(
-                (post: any) =>
-                  post.owner === currentUser.email && (
-                    <Post
-                      key={post.id}
-                      post={post}
-                      onPress={(navigator as any).navigate(Screens.Comments, {
-                        currentUser,
-                        post,
-                      })}
-                    />
-                  )
-              )}
+            {posts?.length > 0 ? (
+              posts.map((post: PostType) => (
+                <Post
+                  key={post.id}
+                  post={post}
+                  onPress={() => {
+                    (navigator as any).navigate(Screens.Comments, {
+                      post,
+                    });
+                  }}
+                />
+              ))
+            ) : (
+              <Text>No posts...</Text>
+            )}
           </ScrollView>
         </View>
       </ImageBackground>
